@@ -231,9 +231,10 @@ body{background:#100a04;display:flex;align-items:center;justify-content:center;m
     <div class="klbl">كاظم الساهر</div>
     <div class="sname">قولي أحبك</div>
     <div class="pbox">
+      <audio id="audioEl" src="song.mp3" preload="auto"></audio>
       <button class="pbtn" id="playBtn" onclick="togglePlay()">▶</button>
       <div class="prog" onclick="seekAudio(event)"><div class="pfill" id="pFill"></div></div>
-      <div class="tlbl" id="tLbl">0:00 / 3:32</div>
+      <div class="tlbl" id="tLbl">0:00 / 0:44</div>
     </div>
     <div class="lbox" id="lyricsTxt">
       قولي أحبّكَ… قولي أهواكَ<br>
@@ -306,8 +307,6 @@ function renderDots(){
   }
 }
 
-var isPlaying=false,elapsed=0,intv=null,li=0;
-var totalDur=212;
 var lyrics=[
   "قولي أحبّكَ… قولي أهواكَ<br>دعيني أسمعها من شفتيكِ",
   "كلمةٌ واحدةٌ تعني الدنيا<br>أنتِ الدنيا كلُّها عندي",
@@ -315,43 +314,50 @@ var lyrics=[
   "قولي أحبّك… تكفينَ قوليها<br>حتى تكتملَ أيّامي بكِ",
   "عيناكِ تقولانِ ما لا يُقال<br>وقلبي يسمعُ كلَّ إشاراتِكِ"
 ];
+var li=0,lyrIntv=null;
+
+var audio=document.getElementById('audioEl');
+
+audio.addEventListener('timeupdate',function(){
+  if(!audio.duration)return;
+  var p=(audio.currentTime/audio.duration)*100;
+  document.getElementById('pFill').style.width=p+'%';
+  var cur=Math.floor(audio.currentTime);
+  var tot=Math.floor(audio.duration);
+  var cm=Math.floor(cur/60),cs=cur%60;
+  var tm=Math.floor(tot/60),ts=tot%60;
+  document.getElementById('tLbl').textContent=cm+':'+(cs<10?'0':'')+cs+' / '+tm+':'+(ts<10?'0':'')+ts;
+});
+
+audio.addEventListener('ended',function(){
+  document.getElementById('playBtn').textContent='▶';
+  document.getElementById('playBtn').classList.remove('pl');
+  clearInterval(lyrIntv);
+});
 
 function togglePlay(){
   var btn=document.getElementById('playBtn');
-  if(!isPlaying){
-    isPlaying=true;btn.textContent='⏸';btn.classList.add('pl');
-    intv=setInterval(function(){
-      if(!isPlaying)return;
-      elapsed=Math.min(elapsed+1,totalDur);
-      updateProg();
-      if(elapsed%30===0){
-        li=(li+1)%lyrics.length;
-        var lb=document.getElementById('lyricsTxt');
-        lb.style.opacity='0';
-        setTimeout(function(){lb.innerHTML=lyrics[li];lb.style.opacity='1';},400);
-      }
-      if(elapsed>=totalDur){resetP();}
-    },1000);
-  } else {resetP();}
-}
-
-function resetP(){
-  isPlaying=false;clearInterval(intv);
-  var btn=document.getElementById('playBtn');
-  btn.textContent='▶';btn.classList.remove('pl');
-}
-
-function updateProg(){
-  var p=(elapsed/totalDur)*100;
-  document.getElementById('pFill').style.width=p+'%';
-  var m=Math.floor(elapsed/60),s=elapsed%60;
-  document.getElementById('tLbl').textContent=m+':'+(s<10?'0':'')+s+' / 3:32';
+  if(audio.paused){
+    audio.play();
+    btn.textContent='⏸';btn.classList.add('pl');
+    lyrIntv=setInterval(function(){
+      li=(li+1)%lyrics.length;
+      var lb=document.getElementById('lyricsTxt');
+      lb.style.opacity='0';
+      setTimeout(function(){lb.innerHTML=lyrics[li];lb.style.opacity='1';},400);
+    },8000);
+  } else {
+    audio.pause();
+    btn.textContent='▶';btn.classList.remove('pl');
+    clearInterval(lyrIntv);
+  }
 }
 
 function seekAudio(e){
+  if(!audio.duration)return;
   var r=e.currentTarget.getBoundingClientRect();
   var p=(r.right-e.clientX)/r.width;
-  elapsed=Math.round(p*totalDur);updateProg();
+  audio.currentTime=p*audio.duration;
 }
 
 renderDots();
