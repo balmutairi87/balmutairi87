@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كتيب — ما لم أقله</title>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0d0c0b;
+    --ivory: #ece7de;
+    --gold: #c9a468;
+    --muted: #b9b2a6;
+    --dark-gold: #8a6d3e;
+    --page-bg: #121110;
+  }
+
+  html {
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+    height: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ivory);
+    font-family: 'Noto Naskh Arabic', serif;
+    height: 100%;
+  }
+
+  .page {
+    height: 100vh;
+    width: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ===== COVER ===== */
+  .cover { background: var(--bg); }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    width: 480px; height: 480px;
+    border: 1px solid rgba(201,164,104,0.1);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    width: 320px; height: 320px;
+    border: 1px solid rgba(201,164,104,0.18);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .cover-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* quill pen SVG container */
+  .quill-wrap {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    opacity: 0.85;
+  }
+
+  /* ink drop decoration */
+  .ink-ring {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 30px;
+    box-shadow: 0 0 30px rgba(201,164,104,0.1);
+    position: relative;
+  }
+  .ink-ring::before {
+    content: '';
+    position: absolute;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,164,104,0.3);
+  }
+  .ink-dot {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 14px var(--gold);
+  }
+
+  /* floating stars */
+  .fstar {
+    position: absolute;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 5px var(--gold);
+  }
+  .fs1 { width:2px;height:2px; top:18%; left:20%; opacity:0.5; }
+  .fs2 { width:3px;height:3px; top:25%; right:18%; opacity:0.6; }
+  .fs3 { width:2px;height:2px; top:70%; left:15%; opacity:0.4; }
+  .fs4 { width:3px;height:3px; top:75%; right:22%; opacity:0.5; }
+  .fs5 { width:2px;height:2px; top:45%; left:8%; opacity:0.3; }
+  .fs6 { width:2px;height:2px; top:55%; right:9%; opacity:0.4; }
+
+  .cover-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    color: var(--gold);
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+  .cover-title {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(2.8rem, 9vw, 5rem);
+    color: var(--ivory);
+    line-height: 1.1;
+    margin-bottom: 6px;
+    text-shadow: 0 0 50px rgba(201,164,104,0.18);
+  }
+  .cover-title-sub {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    margin-bottom: 22px;
+    opacity: 0.85;
+  }
+  .cover-divider {
+    width: 48px; height: 1px;
+    background: linear-gradient(to left, transparent, var(--gold), transparent);
+    margin: 0 auto 18px;
+  }
+  .cover-sub {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 2;
+    max-width: 270px;
+    margin-bottom: 28px;
+  }
+  .cover-author {
+    font-size: 0.75rem;
+    color: var(--dark-gold);
+    letter-spacing: 0.12em;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 26px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column;
+    align-items: center; gap: 7px;
+    animation: pulse 2.5s infinite;
+  }
+  .scroll-hint span { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.18em; }
+  .scroll-arrow { width:1px; height:26px; background: linear-gradient(to bottom, var(--gold), transparent); }
+  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:0.6} }
+
+  /* ===== INNER PAGES ===== */
+  .inner-page {
+    background: var(--page-bg);
+    padding: 60px 36px 40px;
+    position: relative;
+    justify-content: center;
+  }
+  .inner-page::before {
+    content: '';
+    position: absolute;
+    width: 40px; height: 40px;
+    top: 22px; right: 22px;
+    border-top: 1px solid var(--gold);
+    border-right: 1px solid var(--gold);
+    opacity: 0.35;
+  }
+  .inner-page::after {
+    content: '';
+    position: absolute;
+    width: 40px; height: 40px;
+    bottom: 22px; left: 22px;
+    border-bottom: 1px solid var(--gold);
+    border-left: 1px solid var(--gold);
+    opacity: 0.35;
+  }
+
+  .page-number {
+    position: absolute;
+    top: 26px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.58rem;
+    color: var(--gold);
+    letter-spacing: 0.32em;
+    opacity: 0.55;
+  }
+
+  .page-content {
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: 1.55rem;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 28px; height: 1px;
+    background: var(--gold);
+    margin: 9px auto 0;
+    opacity: 0.45;
+  }
+
+  .text-body {
+    font-family: 'Noto Naskh Arabic', serif;
+    font-size: 1.1rem;
+    line-height: 2.3;
+    color: var(--ivory);
+    white-space: pre-line;
+  }
+
+  .text-body .accent {
+    color: var(--gold);
+    font-family: 'Aref Ruqaa', serif;
+    font-size: 1.15rem;
+  }
+
+  .gold-dot {
+    display: block;
+    width: 5px; height: 5px;
+    background: var(--gold);
+    border-radius: 50%;
+    margin: 18px auto;
+    box-shadow: 0 0 9px var(--gold);
+  }
+
+  /* ===== BACK COVER ===== */
+  .back-cover { background: var(--bg); }
+  .back-cover::before {
+    content: '';
+    position: absolute;
+    width: 280px; height: 280px;
+    border: 1px solid rgba(201,164,104,0.1);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+  }
+  .back-inner { text-align: center; position: relative; z-index: 2; }
+  .back-quote {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: 1.3rem;
+    color: var(--muted);
+    line-height: 2.1;
+    max-width: 280px;
+    margin: 0 auto 26px;
+  }
+  .back-logo {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: 2rem;
+    color: var(--gold);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== COVER ===== -->
+<div class="page cover">
+  <div class="fstar fs1"></div>
+  <div class="fstar fs2"></div>
+  <div class="fstar fs3"></div>
+  <div class="fstar fs4"></div>
+  <div class="fstar fs5"></div>
+  <div class="fstar fs6"></div>
+  <div class="cover-inner">
+    <div class="ink-ring"><div class="ink-dot"></div></div>
+    <div class="cover-eyebrow">كتيب — مشاعر خاصة</div>
+    <div class="cover-title">ما لم أقله</div>
+    <div class="cover-title-sub">يوماً</div>
+    <div class="cover-divider"></div>
+    <div class="cover-sub">كلّ ما سكت عنه قلبي،<br>وكلّ ما أراد أن يقوله<br>لو كانت الكلمات تكفي</div>
+    <div class="cover-author">أهديك · هدية من الروح</div>
+  </div>
+  <div class="scroll-hint">
+    <span>تصفّح</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</div>
+
+<!-- ===== PAGE 1 — أول مرة ===== -->
+<div class="page inner-page">
+  <div class="page-number">٠١</div>
+  <div class="page-content">
+    <div class="section-title">أوّل مرّة</div>
+    <div class="text-body">لا أعرف متى بالضبط بدأ الأمر،
+لكنّي أعرف أنّ ثمّة لحظةً
+نظرتُ فيها إليكِ
+ولم أستطع أن أنظر بعدها
+إلى أيّ شيء آخر بنفس الطريقة.
+
+كأنّ العالم كان ناقصاً شيئاً
+طوال تلك السنوات،
+وحين جئتِ
+لم يكمل..
+بل اعترف أخيراً أنّه كان ينتظرك.</div>
+  </div>
+</div>
+
+<!-- ===== PAGE 2 — ثقل الصمت ===== -->
+<div class="page inner-page">
+  <div class="page-number">٠٢</div>
+  <div class="page-content">
+    <div class="section-title">ثقل الصمت</div>
+    <div class="text-body">أحياناً أجلس بجانبكِ
+ولا أقول شيئاً،
+لا لأنّه ليس عندي ما أقوله،
+بل لأنّ ما بداخلي
+أكبر من أن تتّسع له الجمل.
+
+كيف تشرح للريح أنّها هواء؟
+كيف تصف للبحر أنّه عميق؟
+
+أنتِ كذلك..
+وأنا أمامكِ صامت،
+لا لأنّي بلا كلمات
+بل لأنّكِ وحدكِ
+تستحقّين ما لم يُكتب بعد.</div>
+  </div>
+</div>
+
+<!-- ===== PAGE 3 — تفصيل ===== -->
+<div class="page inner-page">
+  <div class="page-number">٠٣</div>
+  <div class="page-content">
+    <div class="section-title">تفصيل</div>
+    <div class="text-body">أحبّكِ في اللحظات التي لا تعرفينها،
+حين تنسين الكوب على الطاولة
+وتمشين مفكّرة،
+حين تضحكين من شيء في رأسك
+قبل أن تحكيه،
+حين تكوني مشغولة
+وتحاولين أن تكوني هادئة
+وتفشلين.
+
+في كلّ هذا أنا هناك
+أراكِ وأشكر الله
+أنّه علّمني أن أنتبه
+لما لا يلتفت إليه أحد.</div>
+  </div>
+</div>
+
+<!-- ===== PAGE 4 — وطن ===== -->
+<div class="page inner-page">
+  <div class="page-number">٠٤</div>
+  <div class="page-content">
+    <div class="section-title">وطن</div>
+    <div class="text-body">يتحدّثون عن الوطن
+كأنّه مكان،
+وأنا بعد أن عرفتكِ
+أفهم أنّ الوطن إنسان.
+
+حين تكونين بعيدة
+لا أشتاق إلى مكان،
+أشتاق إلى صوتك في الغرفة،
+إلى طريقتكِ في قول اسمي،
+إلى الأمان الذي يسكن
+في مجرّد وجودكِ.
+
+أنتِ وطني الوحيد
+الذي لا أحتاج فيه
+إلى إذن للبقاء.</div>
+  </div>
+</div>
+
+<!-- ===== PAGE 5 — عهد ===== -->
+<div class="page inner-page">
+  <div class="page-number">٠٥</div>
+  <div class="page-content">
+    <div class="section-title">عهد</div>
+    <div class="text-body">لن أعدكِ بأنّ الأيام ستكون سهلة،
+لأنّ بعضها لن يكون.
+لكنّي أعدكِ
+أنّني في كلّ يوم صعب
+سأختار أن أكون إلى جانبكِ
+لا على الجانب الآخر.
+
+أعدكِ
+أن أكون الشخص الذي تبحثين عنه
+حين يضيق بكِ كلّ شيء،
+وأن يكون وجودي
+هو الخبر الجيّد
+في يومٍ لا يحمل سواه.</div>
+  </div>
+</div>
+
+<!-- ===== PAGE 6 — ما لم أقله ===== -->
+<div class="page inner-page">
+  <div class="page-number">٠٦</div>
+  <div class="page-content">
+    <div class="section-title">ما لم أقله يوماً</div>
+    <div class="text-body">لم أقل لكِ يوماً
+كم مرّة فكّرتُ فيكِ
+في أوقات لم يعرف بها أحد.
+
+لم أقل لكِ
+أنّ اسمكِ وحده
+يكفي أن يجعل يومي
+أقلّ ثقلاً.
+
+لم أقل لكِ
+أنّ كلّ مرّة ابتسمتِ
+نسيتُ أنّ في الدنيا
+ما يستحقّ الحزن.
+
+وها أنا أقوله الآن،
+ليس لأنّي أجد الكلمات أخيراً،
+بل لأنّكِ تستحقّين
+أن تسمعيها
+ولو مرّة واحدة.</div>
+  </div>
+</div>
+
+<!-- ===== BACK COVER ===== -->
+<div class="page back-cover">
+  <div class="fstar fs1"></div>
+  <div class="fstar fs2"></div>
+  <div class="fstar fs4"></div>
+  <div class="back-inner">
+    <span class="gold-dot"></span>
+    <div class="back-quote">لو كانت الكلمات تكفي<br>لملأتُ بكِ كلّ الصفحات<br>وطلبتُ المزيد</div>
+    <div class="cover-divider" style="margin-bottom:22px; width:48px; height:1px; background:linear-gradient(to left,transparent,#c9a468,transparent); margin-left:auto; margin-right:auto;"></div>
+    <div class="back-logo">أهديك</div>
+  </div>
+</div>
+
+</body>
+</html>
