@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>FitBader — تمارين وتغذية</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #16161f;
+  --card: #1c1c28;
+  --border: #2a2a3d;
+  --gold: #d4a843;
+  --gold2: #f0c060;
+  --blue: #4a9eff;
+  --green: #3ecf8e;
+  --red: #ff5c5c;
+  --purple: #9b6dff;
+  --orange: #ff8c42;
+  --text: #e8e4db;
+  --muted: #8888a0;
+  --radius: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; background:var(--bg); color:var(--text); font-family:'Tajawal',sans-serif; overflow:hidden; }
+
+/* SPLASH */
+#splash {
+  position:fixed; inset:0; background:var(--bg); z-index:999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  transition:opacity .5s;
+}
+#splash .logo { font-size:3rem; }
+#splash h1 { font-size:1.8rem; font-weight:800; color:var(--gold); letter-spacing:1px; }
+#splash p { color:var(--muted); font-size:.9rem; }
+.splash-bar { width:160px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; margin-top:8px; }
+.splash-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); border-radius:2px; animation:fillbar 1.8s ease forwards; }
+@keyframes fillbar { from{width:0} to{width:100%} }
+
+/* LAYOUT */
+#app { display:flex; flex-direction:column; height:100vh; }
+.top-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 18px; background:var(--bg2); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:10;
+}
+.top-bar .app-title { font-size:1rem; font-weight:700; color:var(--gold); }
+.top-bar .user-chip {
+  font-size:.75rem; color:var(--muted); background:var(--card);
+  padding:4px 10px; border-radius:20px; border:1px solid var(--border);
+}
+.top-bar .day-badge {
+  font-size:.72rem; color:var(--green); background:rgba(62,207,142,.1);
+  padding:4px 10px; border-radius:20px; border:1px solid rgba(62,207,142,.2);
+}
+
+/* CONTENT */
+#content { flex:1; overflow-y:auto; padding:0 0 80px; scroll-behavior:smooth; }
+#content::-webkit-scrollbar { display:none; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  display:flex; background:var(--bg2); border-top:1px solid var(--border);
+  position:sticky; bottom:0; z-index:10;
+}
+.nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:10px 4px; border:none; background:transparent; color:var(--muted);
+  font-family:'Tajawal',sans-serif; font-size:.62rem; cursor:pointer;
+  transition:color .2s; position:relative;
+}
+.nav-btn .ico { font-size:1.3rem; }
+.nav-btn.active { color:var(--gold); }
+.nav-btn.active::after {
+  content:''; position:absolute; top:0; left:25%; right:25%; height:2px;
+  background:var(--gold); border-radius:0 0 2px 2px;
+}
+
+/* TABS */
+.tab { display:none; padding:16px; }
+.tab.active { display:block; }
+
+/* CARDS */
+.card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:16px; margin-bottom:12px;
+}
+.card-title { font-size:.85rem; font-weight:700; color:var(--gold); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+
+/* HERO STATS */
+.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.stat-box {
+  background:var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:14px 10px; text-align:center;
+}
+.stat-box .val { font-size:1.4rem; font-weight:800; }
+.stat-box .lbl { font-size:.65rem; color:var(--muted); margin-top:2px; }
+.stat-box.gold .val { color:var(--gold); }
+.stat-box.blue .val { color:var(--blue); }
+.stat-box.green .val { color:var(--green); }
+.stat-box.red .val { color:var(--red); }
+.stat-box.purple .val { color:var(--purple); }
+.stat-box.orange .val { color:var(--orange); }
+
+/* MACROS BAR */
+.macro-row { display:flex; gap:8px; margin-bottom:12px; }
+.macro-pill {
+  flex:1; background:var(--bg3); border-radius:10px; padding:10px 8px; text-align:center;
+  border:1px solid var(--border);
+}
+.macro-pill .mp-val { font-size:1.1rem; font-weight:700; }
+.macro-pill .mp-lbl { font-size:.62rem; color:var(--muted); margin-top:1px; }
+.macro-pill.p .mp-val { color:var(--blue); }
+.macro-pill.c .mp-val { color:var(--orange); }
+.macro-pill.f .mp-val { color:var(--purple); }
+
+/* WORKOUT DAY */
+.day-card {
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  margin-bottom:10px; overflow:hidden;
+}
+.day-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; cursor:pointer; user-select:none;
+}
+.day-header .day-left { display:flex; align-items:center; gap:10px; }
+.day-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.day-name { font-size:.9rem; font-weight:700; }
+.day-focus { font-size:.72rem; color:var(--muted); margin-top:1px; }
+.day-badge-type {
+  font-size:.65rem; padding:3px 10px; border-radius:20px; font-weight:600;
+}
+.day-body { display:none; border-top:1px solid var(--border); }
+.day-body.open { display:block; }
+
+/* EXERCISE TABLE */
+.ex-table { width:100%; padding:12px 14px; }
+.ex-row {
+  display:flex; align-items:center; gap:10px; padding:9px 0;
+  border-bottom:1px solid var(--border);
+}
+.ex-row:last-child { border-bottom:none; }
+.ex-num { width:22px; height:22px; background:var(--bg3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.65rem; color:var(--muted); flex-shrink:0; }
+.ex-info { flex:1; }
+.ex-name { font-size:.82rem; font-weight:600; }
+.ex-detail { font-size:.68rem; color:var(--muted); margin-top:2px; }
+.ex-sets { font-size:.72rem; color:var(--gold); font-weight:700; white-space:nowrap; }
+
+/* MEAL CARDS */
+.meal-card {
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  margin-bottom:10px; overflow:hidden;
+}
+.meal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; cursor:pointer; user-select:none;
+}
+.meal-left { display:flex; align-items:center; gap:10px; }
+.meal-icon { font-size:1.4rem; }
+.meal-name { font-size:.9rem; font-weight:700; }
+.meal-time { font-size:.7rem; color:var(--muted); margin-top:1px; }
+.meal-cal { font-size:.78rem; color:var(--green); font-weight:700; }
+.meal-body { display:none; border-top:1px solid var(--border); padding:14px 16px; }
+.meal-body.open { display:block; }
+
+/* INGREDIENT LIST */
+.ing-list { margin-bottom:12px; }
+.ing-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:7px 0; border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:.8rem;
+}
+.ing-row:last-child { border-bottom:none; }
+.ing-name { color:var(--text); }
+.ing-qty { color:var(--gold); font-weight:600; font-size:.75rem; }
+
+/* RECIPE STEPS */
+.recipe-label { font-size:.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+.steps { display:flex; flex-direction:column; gap:8px; }
+.step-row { display:flex; gap:10px; align-items:flex-start; }
+.step-num { width:22px; height:22px; border-radius:50%; background:rgba(212,168,67,.15); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:.65rem; font-weight:700; flex-shrink:0; margin-top:1px; }
+.step-text { font-size:.78rem; color:var(--muted); line-height:1.5; flex:1; }
+
+/* MACRO TRACKER */
+.tracker-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.tracker-box {
+  background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:14px;
+}
+.tracker-box .t-lbl { font-size:.7rem; color:var(--muted); margin-bottom:6px; }
+.tracker-box .t-val { font-size:1.4rem; font-weight:800; }
+.tracker-box .t-sub { font-size:.65rem; color:var(--muted); margin-top:2px; }
+.progress-bar { height:5px; background:var(--border); border-radius:3px; margin-top:8px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:3px; transition:width .5s; }
+
+/* WATER TRACKER */
+.water-section { text-align:center; padding:16px 0; }
+.water-cups { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:12px 0; }
+.cup-btn {
+  width:44px; height:44px; border-radius:10px; border:2px solid var(--border);
+  background:var(--bg3); cursor:pointer; font-size:1.2rem; transition:all .2s;
+}
+.cup-btn.filled { border-color:var(--blue); background:rgba(74,158,255,.15); }
+.water-count { font-size:1rem; font-weight:700; color:var(--blue); }
+
+/* WEIGHT LOG */
+.weight-log { display:flex; flex-direction:column; gap:8px; }
+.weight-input-row { display:flex; gap:10px; }
+.weight-input-row input {
+  flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+  padding:10px 14px; color:var(--text); font-family:'Tajawal',sans-serif; font-size:.9rem;
+  outline:none;
+}
+.weight-input-row input:focus { border-color:var(--gold); }
+.btn-gold {
+  padding:10px 18px; background:var(--gold); color:#000; border:none;
+  border-radius:10px; font-family:'Tajawal',sans-serif; font-weight:700; font-size:.85rem;
+  cursor:pointer; white-space:nowrap;
+}
+.weight-entries { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+.weight-entry {
+  display:flex; justify-content:space-between; align-items:center;
+  background:var(--bg3); border-radius:8px; padding:9px 12px; font-size:.8rem;
+}
+.weight-entry .we-date { color:var(--muted); }
+.weight-entry .we-val { color:var(--gold); font-weight:700; }
+
+/* TIPS */
+.tip-card {
+  background:linear-gradient(135deg,rgba(212,168,67,.08),rgba(74,158,255,.05));
+  border:1px solid rgba(212,168,67,.2); border-radius:12px; padding:14px;
+  font-size:.8rem; color:var(--muted); line-height:1.6; margin-bottom:10px;
+}
+.tip-card b { color:var(--gold); }
+
+/* SECTION LABEL */
+.section-label {
+  font-size:.72rem; font-weight:700; color:var(--muted); text-transform:uppercase;
+  letter-spacing:1px; margin:16px 0 10px; display:flex; align-items:center; gap:8px;
+}
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* TODAY HIGHLIGHT */
+.today-highlight {
+  background:linear-gradient(135deg,rgba(212,168,67,.1),rgba(154,109,255,.08));
+  border:1px solid rgba(212,168,67,.25); border-radius:14px; padding:16px; margin-bottom:14px;
+}
+.today-highlight .th-day { font-size:.72rem; color:var(--gold); font-weight:700; margin-bottom:4px; }
+.today-highlight .th-title { font-size:1rem; font-weight:800; margin-bottom:6px; }
+.today-highlight .th-sub { font-size:.78rem; color:var(--muted); }
+
+/* RESPONSIVE */
+@media (min-width:420px) {
+  .stats-grid { grid-template-columns:repeat(3,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="logo">🏋️</div>
+  <h1>FitBader</h1>
+  <p>جدولك الأسبوعي + خطة غذائك</p>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+</div>
+
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="app-title">🏋️ FitBader</div>
+    <div class="day-badge" id="todayBadge">—</div>
+    <div class="user-chip">77 كغ | 179.5 سم</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- TAB: HOME -->
+    <div class="tab active" id="tab-home">
+      <div class="today-highlight" id="todayCard">
+        <div class="th-day" id="todayDayName">اليوم</div>
+        <div class="th-title" id="todayWorkoutTitle">—</div>
+        <div class="th-sub" id="todayWorkoutSub">—</div>
+      </div>
+
+      <div class="section-label">📊 بياناتك</div>
+      <div class="stats-grid">
+        <div class="stat-box gold"><div class="val">77</div><div class="lbl">الوزن (كغ)</div></div>
+        <div class="stat-box blue"><div class="val">179.5</div><div class="lbl">الطول (سم)</div></div>
+        <div class="stat-box green"><div class="val">23.9</div><div class="lbl">BMI</div></div>
+        <div class="stat-box orange"><div class="val">3,100</div><div class="lbl">هدف السعرات</div></div>
+        <div class="stat-box purple"><div class="val">154</div><div class="lbl">بروتين (غ)</div></div>
+        <div class="stat-box red"><div class="val">2,850</div><div class="lbl">TDEE تقديري</div></div>
+      </div>
+
+      <div class="section-label">🍽️ الماكرو اليومي</div>
+      <div class="macro-row">
+        <div class="macro-pill p"><div class="mp-val">154غ</div><div class="mp-lbl">بروتين</div></div>
+        <div class="macro-pill c"><div class="mp-val">360غ</div><div class="mp-lbl">كربوهيدرات</div></div>
+        <div class="macro-pill f"><div class="mp-val">90غ</div><div class="mp-lbl">دهون</div></div>
+      </div>
+
+      <div class="tip-card">💡 <b>وزنك مثالي (BMI 23.9)</b> — الهدف الآن <b>بناء عضلة نظيفة</b>. السعرات المستهدفة 3,100 يومياً مع أولوية البروتين ≥ 2g لكل كيلو.</div>
+
+      <div class="section-label">💧 ماء اليوم</div>
+      <div class="card">
+        <div class="water-section">
+          <div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">الهدف: 8 أكواب (2 لتر)</div>
+          <div class="water-cups" id="waterCups"></div>
+          <div class="water-count" id="waterCount">0 / 8 أكواب</div>
+        </div>
+      </div>
+
+      <div class="section-label">⚖️ سجل وزنك</div>
+      <div class="card">
+        <div class="weight-log">
+          <div class="weight-input-row">
+            <input type="number" id="weightInput" placeholder="مثال: 77.2" step="0.1">
+            <button class="btn-gold" onclick="logWeight()">سجّل</button>
+          </div>
+          <div class="weight-entries" id="weightEntries"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: WORKOUT -->
+    <div class="tab" id="tab-workout">
+      <div class="section-label">🗓️ الجدول الأسبوعي</div>
+
+      <div class="tip-card">📌 <b>نظام PPL</b> — Push / Pull / Legs مع تكرار مرتين أسبوعياً. 6 أيام تدريب + راحة الجمعة. الكارديو بعد الأوزان دائماً.</div>
+
+      <!-- Days -->
+      <div id="workoutDays"></div>
+    </div>
+
+    <!-- TAB: MEALS -->
+    <div class="tab" id="tab-meals">
+      <div class="section-label">🍳 6 وجبات يومية</div>
+      <div class="tip-card">🎯 الهدف <b>3,100 كالوري</b> موزّعة على 6 وجبات كل 2.5–3 ساعات. البروتين أولوية في كل وجبة.</div>
+      <div id="mealsContainer"></div>
+    </div>
+
+    <!-- TAB: TRACKER -->
+    <div class="tab" id="tab-tracker">
+      <div class="section-label">📈 تتبع يومك</div>
+      <div class="tracker-grid">
+        <div class="tracker-box">
+          <div class="t-lbl">🔥 السعرات</div>
+          <div class="t-val" id="tr-cal" style="color:var(--orange)">—</div>
+          <div class="t-sub">من أصل 3,100</div>
+          <div class="progress-bar"><div class="progress-fill" id="pr-cal" style="background:var(--orange);width:0%"></div></div>
+        </div>
+        <div class="tracker-box">
+          <div class="t-lbl">🥩 بروتين</div>
+          <div class="t-val" id="tr-pro" style="color:var(--blue)">—</div>
+          <div class="t-sub">من أصل 154غ</div>
+          <div class="progress-bar"><div class="progress-fill" id="pr-pro" style="background:var(--blue);width:0%"></div></div>
+        </div>
+        <div class="tracker-box">
+          <div class="t-lbl">🍚 كربوهيدرات</div>
+          <div class="t-val" id="tr-carb" style="color:var(--purple)">—</div>
+          <div class="t-sub">من أصل 360غ</div>
+          <div class="progress-bar"><div class="progress-fill" id="pr-carb" style="background:var(--purple);width:0%"></div></div>
+        </div>
+        <div class="tracker-box">
+          <div class="t-lbl">🫙 دهون</div>
+          <div class="t-val" id="tr-fat" style="color:var(--green)">—</div>
+          <div class="t-sub">من أصل 90غ</div>
+          <div class="progress-bar"><div class="progress-fill" id="pr-fat" style="background:var(--green);width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:20px">✅ وجبات اليوم</div>
+      <div id="mealChecklist"></div>
+
+      <div class="section-label" style="margin-top:20px">🏃 تمارين اليوم</div>
+      <div class="card" id="exerciseChecklist"></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="showTab('home',this)"><span class="ico">🏠</span>الرئيسية</button>
+    <button class="nav-btn" onclick="showTab('workout',this)"><span class="ico">💪</span>التمارين</button>
+    <button class="nav-btn" onclick="showTab('meals',this)"><span class="ico">🍽️</span>الوجبات</button>
+    <button class="nav-btn" onclick="showTab('tracker',this)"><span class="ico">📊</span>المتابعة</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const DAYS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+
+const WORKOUT_PLAN = [
+  {
+    day:'الأحد', type:'PUSH', color:'#ff5c5c', typeLabel:'دفع',
+    focus:'صدر + كتف + ترايسبس',
+    exercises:[
+      {name:'بنش برس بالبار', detail:'الصدر الرئيسي', sets:'4 × 8-10', target:'صدر'},
+      {name:'بنش مائل بالدمبل', detail:'الصدر العلوي', sets:'3 × 10-12', target:'صدر'},
+      {name:'فلاي دمبل', detail:'فتح الصدر', sets:'3 × 12-15', target:'صدر'},
+      {name:'ميلتري برس بالبار', detail:'الكتف الأمامي', sets:'4 × 8-10', target:'كتف'},
+      {name:'رفع جانبي بالدمبل', detail:'الكتف الجانبي', sets:'3 × 15', target:'كتف'},
+      {name:'تراي كيك باك', detail:'ترايسبس', sets:'3 × 12', target:'ترايسبس'},
+      {name:'تراي بار', detail:'بار ترايسبس', sets:'3 × 12', target:'ترايسبس'},
+      {name:'كارديو مشاية مائلة', detail:'20 دقيقة', sets:'20 دق', target:'كارديو'},
+    ]
+  },
+  {
+    day:'الاثنين', type:'PULL', color:'#4a9eff', typeLabel:'سحب',
+    focus:'ظهر + بايسبس + أكتاف خلفية',
+    exercises:[
+      {name:'ديدلفت', detail:'القوة والكتلة', sets:'4 × 6-8', target:'ظهر'},
+      {name:'بار رو', detail:'وسط الظهر', sets:'4 × 8-10', target:'ظهر'},
+      {name:'لات بول داون', detail:'عرض الظهر', sets:'3 × 10-12', target:'ظهر'},
+      {name:'سيتد رو بالكيبل', detail:'سماكة الظهر', sets:'3 × 12', target:'ظهر'},
+      {name:'فيس بول', detail:'الكتف الخلفي', sets:'3 × 15', target:'كتف'},
+      {name:'بايسبس كيبل', detail:'ذروة البايسبس', sets:'3 × 12', target:'بايسبس'},
+      {name:'هامر كيرل', detail:'البراكيالس', sets:'3 × 12', target:'بايسبس'},
+      {name:'كارديو مشاية مائلة', detail:'20 دقيقة', sets:'20 دق', target:'كارديو'},
+    ]
+  },
+  {
+    day:'الثلاثاء', type:'LEGS', color:'#3ecf8e', typeLabel:'أرجل',
+    focus:'كوادريسبس + هامسترينج + ساق',
+    exercises:[
+      {name:'سكوات بالبار', detail:'الملك', sets:'4 × 8-10', target:'أرجل'},
+      {name:'ليغ برس', detail:'الكوادريسبس', sets:'4 × 10-12', target:'أرجل'},
+      {name:'لنجز بالدمبل', detail:'التوازن والكوادريسبس', sets:'3 × 12 لكل جهة', target:'أرجل'},
+      {name:'رومانيان ديدلفت', detail:'الهامسترينج', sets:'3 × 10', target:'هامسترينج'},
+      {name:'ليغ كيرل', detail:'الهامسترينج الخلفي', sets:'3 × 12', target:'هامسترينج'},
+      {name:'هيب ثراست', detail:'الأرداف', sets:'3 × 12', target:'أرداف'},
+      {name:'كالف رايز', detail:'الساق', sets:'4 × 20', target:'ساق'},
+      {name:'كارديو بطيء', detail:'15 دقيقة', sets:'15 دق', target:'كارديو'},
+    ]
+  },
+  {
+    day:'الأربعاء', type:'PUSH', color:'#ff5c5c', typeLabel:'دفع',
+    focus:'صدر + كتف + ترايسبس (تكرار)',
+    exercises:[
+      {name:'بنش دمبل مستوي', detail:'الصدر الكامل', sets:'4 × 10', target:'صدر'},
+      {name:'انكلاين بنش بالبار', detail:'الصدر العلوي', sets:'3 × 10', target:'صدر'},
+      {name:'كيبل كروس أوفر', detail:'تشكيل الصدر', sets:'3 × 15', target:'صدر'},
+      {name:'دمبل شولدر برس', detail:'الكتف', sets:'4 × 10', target:'كتف'},
+      {name:'فرونت رايز', detail:'الكتف الأمامي', sets:'3 × 12', target:'كتف'},
+      {name:'تراي ديبس', detail:'ترايسبس + صدر', sets:'3 × حتى الإجهاد', target:'ترايسبس'},
+      {name:'سكل كراشر', detail:'ترايسبس', sets:'3 × 12', target:'ترايسبس'},
+      {name:'كارديو', detail:'25 دقيقة', sets:'25 دق', target:'كارديو'},
+    ]
+  },
+  {
+    day:'الخميس', type:'PULL', color:'#4a9eff', typeLabel:'سحب',
+    focus:'ظهر + بايسبس (تكرار)',
+    exercises:[
+      {name:'بول آبس', detail:'الظهر والبايسبس', sets:'4 × حتى الإجهاد', target:'ظهر'},
+      {name:'هاي رو بالكيبل', detail:'الظهر العلوي', sets:'3 × 12', target:'ظهر'},
+      {name:'ديكلاين دمبل رو', detail:'الظهر السفلي', sets:'3 × 12', target:'ظهر'},
+      {name:'هايبر اكستنشن', detail:'أسفل الظهر', sets:'3 × 15', target:'ظهر'},
+      {name:'بايسبس EZ بار', detail:'حجم البايسبس', sets:'4 × 10', target:'بايسبس'},
+      {name:'إنكلاين دمبل كيرل', detail:'تمديد البايسبس', sets:'3 × 12', target:'بايسبس'},
+      {name:'بلانك + كرانشز', detail:'الكور', sets:'3 × دقيقة / 20 تكرار', target:'كور'},
+      {name:'كارديو', detail:'20 دقيقة', sets:'20 دق', target:'كارديو'},
+    ]
+  },
+  {
+    day:'الجمعة', type:'REST', color:'#8888a0', typeLabel:'راحة',
+    focus:'يوم راحة تام — استشفاء وتغذية',
+    exercises:[
+      {name:'مشي خفيف', detail:'اختياري 20-30 دقيقة', sets:'اختياري', target:''},
+      {name:'تمدد وإطالة', detail:'10-15 دقيقة', sets:'اختياري', target:''},
+    ]
+  },
+  {
+    day:'السبت', type:'LEGS', color:'#3ecf8e', typeLabel:'أرجل',
+    focus:'أرجل + كور (تكرار)',
+    exercises:[
+      {name:'فرونت سكوات', detail:'الكوادريسبس', sets:'4 × 8', target:'أرجل'},
+      {name:'ليغ اكستنشن', detail:'تشكيل الكوادريسبس', sets:'3 × 15', target:'أرجل'},
+      {name:'ستيف ليغ ديدلفت', detail:'الهامسترينج', sets:'3 × 12', target:'هامسترينج'},
+      {name:'بيلاتيس سكوات', detail:'التوازن', sets:'3 × 20', target:'أرجل'},
+      {name:'سيتد كالف رايز', detail:'الساق المزدوج', sets:'4 × 25', target:'ساق'},
+      {name:'هانغينغ ليغ رايز', detail:'الكور السفلي', sets:'3 × 15', target:'كور'},
+      {name:'ريس كرانشز', detail:'الكور الكامل', sets:'3 × 20', target:'كور'},
+      {name:'HIIT كارديو', detail:'15 دقيقة', sets:'15 دق', target:'كارديو'},
+    ]
+  },
+];
+
+const MEALS = [
+  {
+    name:'فطور الصباح', time:'7:00 – 7:30 ص', icon:'🌅', cal:650,
+    macros:{p:40,c:70,f:20},
+    ingredients:[
+      {name:'بيضة كاملة', qty:'3 حبات'},
+      {name:'بياض البيض', qty:'3 بياضات'},
+      {name:'شوفان', qty:'80 غرام'},
+      {name:'موز', qty:'1 حبة'},
+      {name:'حليب قليل الدسم', qty:'200 مل'},
+      {name:'عسل', qty:'1 ملعقة كبيرة'},
+    ],
+    steps:[
+      'اخلط الشوفان بالحليب واتركه دقيقتين في الميكروويف.',
+      'في مقلاة بالزيت النباتي اقلي البيض + البياضات مع ملح وفلفل أسود.',
+      'قطّع الموز على الشوفان وأضف العسل.',
+      'قدّم الشوفان والبيض معاً — وجبة كاملة ومشبعة.'
+    ]
+  },
+  {
+    name:'وجبة منتصف الضحى', time:'10:00 – 10:30 ص', icon:'🥤', cal:500,
+    macros:{p:40,c:55,f:10},
+    ingredients:[
+      {name:'بروتين واي بودر', qty:'1 سكوبة (30غ)'},
+      {name:'حليب 2%', qty:'300 مل'},
+      {name:'موز', qty:'1 حبة'},
+      {name:'زبدة فول سوداني', qty:'1 ملعقة'},
+      {name:'خبز قمح أسمر', qty:'2 شرائح'},
+    ],
+    steps:[
+      'اخلط البروتين بودر مع الحليب والموز في الخلاط.',
+      'دهن خبز القمح بزبدة الفول السوداني.',
+      'تناول الشيك مع السندويشة كوجبة متكاملة.'
+    ]
+  },
+  {
+    name:'وجبة ما قبل التمرين', time:'12:30 – 1:00 م', icon:'⚡', cal:600,
+    macros:{p:45,c:75,f:12},
+    ingredients:[
+      {name:'صدر دجاج مشوي', qty:'180 غرام'},
+      {name:'أرز أبيض مسلوق', qty:'150 غرام مطبوخ'},
+      {name:'خيار + طماطم', qty:'حسب الرغبة'},
+      {name:'زيت زيتون', qty:'1 ملعقة كبيرة'},
+      {name:'ليمون', qty:'نصف حبة'},
+    ],
+    steps:[
+      'تبّل الدجاج بالثوم والكركم والفلفل الأسود والملح.',
+      'اشوي الدجاج على نار متوسطة 6-7 دقائق لكل وجه.',
+      'اسلق الأرز أو طهّه بالكوكر.',
+      'قدّمه مع سلطة الخيار والطماطم مع الليمون والزيت.'
+    ]
+  },
+  {
+    name:'وجبة ما بعد التمرين', time:'3:30 – 4:00 م', icon:'🏋️', cal:550,
+    macros:{p:50,c:60,f:8},
+    ingredients:[
+      {name:'تونة بالماء', qty:'2 علبة (280غ)'},
+      {name:'خبز أسمر', qty:'2 شرائح'},
+      {name:'زبادي يوناني قليل الدسم', qty:'150 غرام'},
+      {name:'طماطم', qty:'1 حبة'},
+      {name:'خردل', qty:'1 ملعقة صغيرة'},
+    ],
+    steps:[
+      'صفّي التونة جيداً من الماء.',
+      'اخلطها مع الخردل وقليل الفلفل الأسود.',
+      'ضعها في الخبز مع شرائح الطماطم.',
+      'قدّمها مع الزبادي كطبق جانبي للبروتين الإضافي.'
+    ]
+  },
+  {
+    name:'العشاء', time:'7:00 – 7:30 م', icon:'🍽️', cal:650,
+    macros:{p:45,c:70,f:20},
+    ingredients:[
+      {name:'سمك سلمون أو بلطي', qty:'200 غرام'},
+      {name:'بطاطا حلوة', qty:'200 غرام'},
+      {name:'بروكلي أو خضار مشكلة', qty:'200 غرام'},
+      {name:'زيت زيتون', qty:'2 ملعقة كبيرة'},
+      {name:'ثوم + ليمون + أعشاب', qty:'حسب الرغبة'},
+    ],
+    steps:[
+      'سخّن الفرن على 200 درجة.',
+      'دهن السمك بالزيت والليمون والثوم.',
+      'قطّع البطاطا الحلوة ونظّم الخضار في الصينية.',
+      'أضف ملح وفلفل وأعشاب جافة.',
+      'اطهُ في الفرن 20-25 دقيقة حتى ينضج.'
+    ]
+  },
+  {
+    name:'وجبة ما قبل النوم', time:'9:30 – 10:00 م', icon:'🌙', cal:150,
+    macros:{p:20,c:15,f:3},
+    ingredients:[
+      {name:'زبادي يوناني 0%', qty:'200 غرام'},
+      {name:'كازيين بودر (اختياري)', qty:'نصف سكوبة'},
+      {name:'توت أو فراولة', qty:'حفنة'},
+    ],
+    steps:[
+      'ضع الزبادي في طبق.',
+      'أضف الكازيين بودر إذا توفّر واخلطه.',
+      'رصّ التوت أو الفراولة فوقه.',
+      'تناوله قبل النوم بـ 30 دقيقة — الكازيين يغذّي عضلاتك طوال الليل.'
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let waterCups = parseInt(localStorage.getItem('water') || '0');
+let weightLog = JSON.parse(localStorage.getItem('weightLog') || '[]');
+let mealsDone = JSON.parse(localStorage.getItem('mealsDone') || '{}');
+let exDone = JSON.parse(localStorage.getItem('exDone') || '{}');
+
+const todayKey = () => new Date().toDateString();
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  // Reset daily trackers if new day
+  const lastDay = localStorage.getItem('lastDay');
+  if (lastDay !== todayKey()) {
+    mealsDone = {};
+    exDone = {};
+    waterCups = 0;
+    localStorage.setItem('mealsDone', '{}');
+    localStorage.setItem('exDone', '{}');
+    localStorage.setItem('water', '0');
+    localStorage.setItem('lastDay', todayKey());
+  }
+
+  const now = new Date();
+  const dow = now.getDay(); // 0=Sun
+  const todayPlan = WORKOUT_PLAN[dow];
+  const dayNames = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+
+  document.getElementById('todayBadge').textContent = dayNames[dow];
+  document.getElementById('todayDayName').textContent = 'اليوم — ' + dayNames[dow];
+  document.getElementById('todayWorkoutTitle').textContent = todayPlan.focus;
+  document.getElementById('todayWorkoutSub').textContent = todayPlan.exercises.length + ' تمرين — نوع ' + todayPlan.typeLabel;
+
+  buildWater();
+  buildWeightLog();
+  buildWorkout();
+  buildMeals();
+  buildTracker();
+}
+
+// ═══════════════════════════════════════════════════════
+// WATER
+// ═══════════════════════════════════════════════════════
+function buildWater() {
+  const container = document.getElementById('waterCups');
+  container.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'cup-btn' + (i < waterCups ? ' filled' : '');
+    btn.textContent = '💧';
+    btn.onclick = () => toggleCup(i);
+    container.appendChild(btn);
+  }
+  document.getElementById('waterCount').textContent = waterCups + ' / 8 أكواب';
+}
+function toggleCup(i) {
+  waterCups = (i < waterCups) ? i : i + 1;
+  localStorage.setItem('water', waterCups);
+  buildWater();
+}
+
+// ═══════════════════════════════════════════════════════
+// WEIGHT LOG
+// ═══════════════════════════════════════════════════════
+function buildWeightLog() {
+  const container = document.getElementById('weightEntries');
+  container.innerHTML = '';
+  const last5 = weightLog.slice(-5).reverse();
+  if (last5.length === 0) {
+    container.innerHTML = '<div style="font-size:.78rem;color:var(--muted);text-align:center;padding:8px">لا يوجد تسجيلات بعد</div>';
+    return;
+  }
+  last5.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'weight-entry';
+    div.innerHTML = `<span class="we-date">${entry.date}</span><span class="we-val">${entry.weight} كغ</span>`;
+    container.appendChild(div);
+  });
+}
+function logWeight() {
+  const input = document.getElementById('weightInput');
+  const val = parseFloat(input.value);
+  if (!val || val < 40 || val > 200) return;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ar-KW', {day:'numeric',month:'short'});
+  weightLog.push({date:dateStr, weight:val});
+  localStorage.setItem('weightLog', JSON.stringify(weightLog));
+  input.value = '';
+  buildWeightLog();
+}
+
+// ═══════════════════════════════════════════════════════
+// WORKOUT
+// ═══════════════════════════════════════════════════════
+function buildWorkout() {
+  const container = document.getElementById('workoutDays');
+  container.innerHTML = '';
+  WORKOUT_PLAN.forEach((day, di) => {
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    const typeColors = {PUSH:'rgba(255,92,92,.15)',PULL:'rgba(74,158,255,.15)',LEGS:'rgba(62,207,142,.15)',REST:'rgba(136,136,160,.15)'};
+    card.innerHTML = `
+      <div class="day-header" onclick="toggleDay(${di})">
+        <div class="day-left">
+          <div class="day-dot" style="background:${day.color}"></div>
+          <div>
+            <div class="day-name">${day.day}</div>
+            <div class="day-focus">${day.focus}</div>
+          </div>
+        </div>
+        <div class="day-badge-type" style="color:${day.color};background:${typeColors[day.type]}">${day.typeLabel}</div>
+      </div>
+      <div class="day-body" id="day-body-${di}">
+        <div class="ex-table">
+          ${day.exercises.map((ex, ei) => `
+            <div class="ex-row">
+              <div class="ex-num">${ei+1}</div>
+              <div class="ex-info">
+                <div class="ex-name">${ex.name}</div>
+                <div class="ex-detail">${ex.detail}</div>
+              </div>
+              <div class="ex-sets">${ex.sets}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+function toggleDay(i) {
+  const body = document.getElementById('day-body-' + i);
+  body.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════
+// MEALS
+// ═══════════════════════════════════════════════════════
+function buildMeals() {
+  const container = document.getElementById('mealsContainer');
+  container.innerHTML = '';
+  MEALS.forEach((meal, mi) => {
+    const card = document.createElement('div');
+    card.className = 'meal-card';
+    card.innerHTML = `
+      <div class="meal-header" onclick="toggleMeal(${mi})">
+        <div class="meal-left">
+          <div class="meal-icon">${meal.icon}</div>
+          <div>
+            <div class="meal-name">${meal.name}</div>
+            <div class="meal-time">${meal.time}</div>
+          </div>
+        </div>
+        <div class="meal-cal">${meal.cal} كالوري</div>
+      </div>
+      <div class="meal-body" id="meal-body-${mi}">
+        <div class="macro-row" style="margin-bottom:14px">
+          <div class="macro-pill p" style="font-size:.72rem"><div class="mp-val" style="font-size:1rem">${meal.macros.p}غ</div><div class="mp-lbl">بروتين</div></div>
+          <div class="macro-pill c" style="font-size:.72rem"><div class="mp-val" style="font-size:1rem">${meal.macros.c}غ</div><div class="mp-lbl">كارب</div></div>
+          <div class="macro-pill f" style="font-size:.72rem"><div class="mp-val" style="font-size:1rem">${meal.macros.f}غ</div><div class="mp-lbl">دهون</div></div>
+        </div>
+        <div class="recipe-label">المكونات</div>
+        <div class="ing-list">
+          ${meal.ingredients.map(ing => `
+            <div class="ing-row">
+              <span class="ing-name">${ing.name}</span>
+              <span class="ing-qty">${ing.qty}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="recipe-label" style="margin-top:12px">طريقة التحضير</div>
+        <div class="steps">
+          ${meal.steps.map((step, si) => `
+            <div class="step-row">
+              <div class="step-num">${si+1}</div>
+              <div class="step-text">${step}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+function toggleMeal(i) {
+  const body = document.getElementById('meal-body-' + i);
+  body.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════
+// TRACKER
+// ═══════════════════════════════════════════════════════
+function buildTracker() {
+  // Compute totals from checked meals
+  const tdKey = todayKey();
+  const doneMeals = mealsDone[tdKey] || {};
+  let cal=0, pro=0, carb=0, fat=0;
+  MEALS.forEach((m, mi) => {
+    if (doneMeals[mi]) {
+      cal += m.cal; pro += m.macros.p; carb += m.macros.c; fat += m.macros.f;
+    }
+  });
+
+  const setTracker = (id, val, pid, max) => {
+    const el = document.getElementById(id);
+    const pel = document.getElementById(pid);
+    if (el) el.textContent = val + (id.includes('cal') ? '' : 'غ');
+    if (pel) pel.style.width = Math.min(100, Math.round(val/max*100)) + '%';
+  };
+  setTracker('tr-cal', cal, 'pr-cal', 3100);
+  setTracker('tr-pro', pro, 'pr-pro', 154);
+  setTracker('tr-carb', carb, 'pr-carb', 360);
+  setTracker('tr-fat', fat, 'pr-fat', 90);
+
+  // Meal checklist
+  const mealCheck = document.getElementById('mealChecklist');
+  mealCheck.innerHTML = '';
+  MEALS.forEach((meal, mi) => {
+    const done = doneMeals[mi] || false;
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.marginBottom = '8px';
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.gap = '12px';
+    div.style.cursor = 'pointer';
+    div.innerHTML = `
+      <div style="width:24px;height:24px;border-radius:6px;border:2px solid ${done?'var(--green)':'var(--border)'};background:${done?'rgba(62,207,142,.2)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${done ? '✓' : ''}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:.82rem;font-weight:600;${done?'text-decoration:line-through;color:var(--muted)':''}">${meal.name}</div>
+        <div style="font-size:.7rem;color:var(--muted)">${meal.cal} كالوري</div>
+      </div>
+      <div style="font-size:.75rem;color:var(--green)">${meal.icon}</div>
+    `;
+    div.onclick = () => toggleMealDone(mi);
+    mealCheck.appendChild(div);
+  });
+
+  // Exercise checklist
+  const exCheck = document.getElementById('exerciseChecklist');
+  exCheck.innerHTML = '';
+  const now = new Date();
+  const todayPlan = WORKOUT_PLAN[now.getDay()];
+  const doneEx = exDone[todayKey()] || {};
+  todayPlan.exercises.forEach((ex, ei) => {
+    const done = doneEx[ei] || false;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer';
+    row.innerHTML = `
+      <div style="width:22px;height:22px;border-radius:6px;border:2px solid ${done?'var(--gold)':'var(--border)'};background:${done?'rgba(212,168,67,.15)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem">
+        ${done?'✓':''}
+      </div>
+      <div style="flex:1;font-size:.8rem;${done?'text-decoration:line-through;color:var(--muted)':''}">${ex.name}</div>
+      <div style="font-size:.7rem;color:var(--gold)">${ex.sets}</div>
+    `;
+    row.onclick = () => toggleExDone(ei);
+    exCheck.appendChild(row);
+  });
+}
+
+function toggleMealDone(mi) {
+  const tdKey = todayKey();
+  if (!mealsDone[tdKey]) mealsDone[tdKey] = {};
+  mealsDone[tdKey][mi] = !mealsDone[tdKey][mi];
+  localStorage.setItem('mealsDone', JSON.stringify(mealsDone));
+  buildTracker();
+}
+function toggleExDone(ei) {
+  const tdKey = todayKey();
+  if (!exDone[tdKey]) exDone[tdKey] = {};
+  exDone[tdKey][ei] = !exDone[tdKey][ei];
+  localStorage.setItem('exDone', JSON.stringify(exDone));
+  buildTracker();
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'tracker') buildTracker();
+}
+
+// ═══════════════════════════════════════════════════════
+// SPLASH
+// ═══════════════════════════════════════════════════════
+setTimeout(() => {
+  const splash = document.getElementById('splash');
+  splash.style.opacity = '0';
+  setTimeout(() => splash.remove(), 500);
+}, 2000);
+
+// ═══════════════════════════════════════════════════════
+// RUN
+// ═══════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
