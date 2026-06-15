@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شباب الديهاني - نظام اللياقة الكامل</title>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --secondary: #16213e;
+    --accent: #0f3460;
+    --gold: #e94560;
+    --green: #00b894;
+    --orange: #fd9644;
+    --blue: #4a90d9;
+    --light: #f8f9fa;
+    --text: #ffffff;
+    --card-bg: #1e2a3a;
+    --border: #2d3f55;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background: var(--primary);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    padding: 20px;
+    text-align: center;
+    border-bottom: 3px solid var(--gold);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .header h1 { font-size: 1.8em; color: var(--gold); letter-spacing: 1px; }
+  .header p { color: #aaa; font-size: 0.9em; margin-top: 4px; }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 15px 20px;
+    background: var(--secondary);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 80px;
+    z-index: 99;
+  }
+  .nav-btn {
+    padding: 10px 20px;
+    border: 2px solid var(--border);
+    border-radius: 25px;
+    background: transparent;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s;
+    font-family: inherit;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(233,69,96,0.4);
+  }
+
+  /* Sections */
+  .section { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .card-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--gold);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .icon { font-size: 1.3em; }
+
+  /* Week Schedule */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .day-card {
+    background: var(--accent);
+    border-radius: 12px;
+    padding: 15px 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .day-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .day-card .day-name { font-size: 0.85em; color: #aaa; margin-bottom: 5px; }
+  .day-card .day-type { font-size: 0.95em; font-weight: bold; }
+  .day-card.push { border-color: var(--gold); }
+  .day-card.pull { border-color: var(--blue); }
+  .day-card.lower { border-color: var(--green); }
+  .day-card.upper { border-color: var(--orange); }
+  .day-card.rest { border-color: #555; }
+
+  /* Exercise Tables */
+  .exercise-section {
+    margin-bottom: 25px;
+  }
+  .section-label {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.95em;
+    margin-bottom: 15px;
+  }
+  .label-push { background: rgba(233,69,96,0.2); color: var(--gold); border: 1px solid var(--gold); }
+  .label-pull { background: rgba(74,144,217,0.2); color: var(--blue); border: 1px solid var(--blue); }
+  .label-lower { background: rgba(0,184,148,0.2); color: var(--green); border: 1px solid var(--green); }
+  .label-upper { background: rgba(253,150,68,0.2); color: var(--orange); border: 1px solid var(--orange); }
+
+  .exercise-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+  }
+  .exercise-table th {
+    background: var(--accent);
+    padding: 10px 12px;
+    text-align: right;
+    color: #ccc;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+  }
+  .exercise-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .exercise-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .exercise-table .num-cell {
+    text-align: center;
+    color: var(--gold);
+    font-weight: bold;
+    width: 40px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+  }
+  .badge-sets { background: rgba(74,144,217,0.2); color: var(--blue); }
+  .badge-reps { background: rgba(0,184,148,0.2); color: var(--green); }
+  .badge-rest { background: rgba(253,150,68,0.2); color: var(--orange); }
+  .video-link {
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.85em;
+    padding: 4px 10px;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .video-link:hover { background: var(--gold); color: white; }
+
+  /* Cardio */
+  .cardio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  .cardio-card {
+    background: var(--accent);
+    border-radius: 12px;
+    padding: 15px;
+    border-right: 4px solid var(--green);
+  }
+  .cardio-card h4 { color: var(--green); margin-bottom: 8px; }
+  .cardio-card p { color: #ccc; font-size: 0.9em; line-height: 1.6; }
+
+  /* Meal Plan */
+  .meal-grid {
+    display: grid;
+    gap: 15px;
+  }
+  .meal-card {
+    background: var(--accent);
+    border-radius: 14px;
+    padding: 18px;
+    border-right: 4px solid var(--blue);
+  }
+  .meal-card.preworkout { border-right-color: var(--orange); }
+  .meal-title {
+    font-weight: bold;
+    color: var(--blue);
+    font-size: 1em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .meal-card.preworkout .meal-title { color: var(--orange); }
+  .meal-items { list-style: none; }
+  .meal-items li {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #ddd;
+    font-size: 0.9em;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .meal-items li:last-child { border-bottom: none; }
+  .meal-items li::before { content: "◆"; color: var(--blue); font-size: 0.6em; margin-top: 5px; flex-shrink: 0; }
+  .meal-note {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    font-size: 0.82em;
+    color: #aaa;
+    border-right: 3px solid var(--gold);
+  }
+  .day-type-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .toggle-btn {
+    padding: 10px 25px;
+    border-radius: 25px;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: #ccc;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9em;
+    transition: all 0.3s;
+  }
+  .toggle-btn.active-training { background: var(--blue); border-color: var(--blue); color: white; }
+  .toggle-btn.active-rest { background: var(--green); border-color: var(--green); color: white; }
+
+  /* Supplements */
+  .supp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+  }
+  .supp-card {
+    background: var(--accent);
+    border-radius: 14px;
+    padding: 18px;
+    border-top: 3px solid var(--green);
+    transition: transform 0.2s;
+  }
+  .supp-card:hover { transform: translateY(-3px); }
+  .supp-name { font-size: 1.1em; font-weight: bold; color: var(--green); margin-bottom: 10px; }
+  .supp-detail { display: flex; flex-direction: column; gap: 6px; }
+  .supp-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .supp-label { color: #888; font-size: 0.82em; }
+  .supp-value { color: #ddd; font-size: 0.88em; text-align: left; max-width: 60%; }
+  .supp-optional { 
+    display: inline-block; 
+    padding: 2px 8px; 
+    background: rgba(253,150,68,0.2); 
+    color: var(--orange); 
+    border-radius: 8px; 
+    font-size: 0.75em;
+    margin-right: 8px;
+  }
+
+  /* Food Swaps */
+  .swaps-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .swap-tab {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: #ccc;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85em;
+    transition: all 0.2s;
+  }
+  .swap-tab.active { background: var(--orange); border-color: var(--orange); color: white; }
+  .swap-content { display: none; }
+  .swap-content.active { display: block; }
+  .swap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88em;
+  }
+  .swap-table th {
+    background: var(--accent);
+    padding: 10px 12px;
+    text-align: right;
+    color: #ccc;
+    border-bottom: 2px solid var(--border);
+  }
+  .swap-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: #ddd;
+  }
+  .swap-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .swap-table .gram { color: var(--orange); font-weight: bold; }
+
+  /* Recipes */
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .recipe-card {
+    background: var(--accent);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s;
+    border: 1px solid var(--border);
+  }
+  .recipe-card:hover { transform: translateY(-3px); border-color: var(--orange); }
+  .recipe-card a {
+    color: var(--orange);
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: block;
+    margin-top: 8px;
+  }
+  .recipe-card .recipe-icon { font-size: 2em; margin-bottom: 8px; }
+  .recipe-card .recipe-name { color: #ddd; font-size: 0.9em; }
+
+  /* Rules */
+  .rules-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .rules-list li {
+    background: var(--accent);
+    padding: 15px 18px;
+    border-radius: 12px;
+    border-right: 4px solid var(--gold);
+    color: #ddd;
+    font-size: 0.95em;
+    line-height: 1.6;
+  }
+  .rules-list li strong { color: var(--gold); }
+
+  /* Warm up */
+  .warmup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  .warmup-card {
+    background: var(--accent);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    border: 2px solid var(--border);
+    transition: all 0.3s;
+  }
+  .warmup-card:hover { border-color: var(--blue); }
+  .warmup-card h4 { color: var(--blue); margin-bottom: 10px; font-size: 1em; }
+  .warmup-card a {
+    display: inline-block;
+    padding: 8px 20px;
+    background: var(--blue);
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.85em;
+    margin-top: 10px;
+    transition: opacity 0.2s;
+  }
+  .warmup-card a:hover { opacity: 0.8; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.3em; }
+    .nav { top: 70px; }
+    .week-grid { grid-template-columns: repeat(2, 1fr); }
+    .cardio-grid, .warmup-grid { grid-template-columns: 1fr; }
+    .exercise-table { font-size: 0.8em; }
+    .exercise-table th:nth-child(4),
+    .exercise-table td:nth-child(4) { display: none; }
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section.active { animation: fadeIn 0.3s ease; }
+
+  /* Info banner */
+  .info-banner {
+    background: linear-gradient(135deg, rgba(233,69,96,0.15), rgba(74,144,217,0.15));
+    border: 1px solid rgba(233,69,96,0.3);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #ccc;
+    font-size: 0.9em;
+    line-height: 1.7;
+  }
+  .info-banner strong { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>💪 شباب الديهاني - نظام اللياقة الكامل</h1>
+  <p>نظام التمرين · التغذية · المكملات · التبديلات</p>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('training')">🏋️ التمرين</button>
+  <button class="nav-btn" onclick="showSection('nutrition')">🍽️ التغذية</button>
+  <button class="nav-btn" onclick="showSection('supplements')">💊 المكملات</button>
+  <button class="nav-btn" onclick="showSection('swaps')">🔄 التبديلات</button>
+  <button class="nav-btn" onclick="showSection('recipes')">👨‍🍳 الوصفات</button>
+</div>
+
+<!-- ===== TRAINING SECTION ===== -->
+<div id="training" class="section active">
+
+  <!-- Week Schedule -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📅</span> جدول الأسبوع - Week 1 Rotation</div>
+    <div class="week-grid">
+      <div class="day-card push">
+        <div class="day-name">اليوم الأول</div>
+        <div class="day-type" style="color:var(--gold)">Push + Cardio</div>
+      </div>
+      <div class="day-card pull">
+        <div class="day-name">اليوم الثاني</div>
+        <div class="day-type" style="color:var(--blue)">Pull + Cardio</div>
+      </div>
+      <div class="day-card rest">
+        <div class="day-name">اليوم الثالث</div>
+        <div class="day-type" style="color:#aaa">Rest + Cardio</div>
+      </div>
+      <div class="day-card lower">
+        <div class="day-name">اليوم الرابع</div>
+        <div class="day-type" style="color:var(--green)">Lower + Cardio</div>
+      </div>
+      <div class="day-card upper">
+        <div class="day-name">اليوم الخامس</div>
+        <div class="day-type" style="color:var(--orange)">Upper + Cardio</div>
+      </div>
+      <div class="day-card rest">
+        <div class="day-name">اليوم السادس</div>
+        <div class="day-type" style="color:#aaa">Rest + Cardio</div>
+      </div>
+      <div class="day-card rest">
+        <div class="day-name">اليوم السابع</div>
+        <div class="day-type" style="color:#888">Total Rest</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Training Rules -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> قواعد مهمة لنظام التمرين</div>
+    <ul class="rules-list">
+      <li>شرح نظام العدات والمجاميع واختيار الوزن في الفيديو، <strong>لازم تشوفه الأول</strong> عشان تفهم النظام</li>
+      <li>لو أي تمرينة مش مريحاك أو مش عندك فالجيم <strong>ابعتلي على واتساب</strong>، متغيرش من نفسك</li>
+      <li>الأولوية لترتيب التمرين، لكن لو الجيم زحمة متفضلش واقف مستني وخش على الزاوية اللي بعدها</li>
+      <li><strong>ابتدي بالتسخين ← تمرين الحديد ← الكارديو</strong></li>
+    </ul>
+  </div>
+
+  <!-- Warm Up -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🔥</span> الإحماء (Warm Up)</div>
+    <div class="warmup-grid">
+      <div class="warmup-card">
+        <h4>Upper Body Warm Up</h4>
+        <p style="color:#aaa;font-size:0.85em">قبل تمرين الجزء العلوي</p>
+        <a href="https://drive.google.com" target="_blank">▶ شاهد الفيديو</a>
+      </div>
+      <div class="warmup-card">
+        <h4>Lower Body Warm Up</h4>
+        <p style="color:#aaa;font-size:0.85em">قبل تمرين الرجل</p>
+        <a href="https://drive.google.com" target="_blank">▶ شاهد الفيديو</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUSH -->
+  <div class="card">
+    <div class="card-title"><span class="icon">💪</span> تمارين Push (صدر + كتف + تراي)</div>
+    <div class="exercise-section">
+      <span class="section-label label-push">Push Day</span>
+      <div style="overflow-x:auto">
+      <table class="exercise-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>التمرين</th>
+            <th>المجاميع الأساسية</th>
+            <th>نطاق العدات</th>
+            <th>وقت الراحة</th>
+            <th>فيديو</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num-cell">1</td>
+            <td>Flat Smith Press</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">1x6-8 / 2x10-12</span></td>
+            <td><span class="badge badge-rest">150-180 ث</span></td>
+            <td><a href="https://drive.google.com/file/d/1ZecJB5PGk12WvUPf9PU4hDd6farmcDLt/view" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">2</td>
+            <td>Machine Incline Press</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">1x6-8 / 2x10-12</span></td>
+            <td><span class="badge badge-rest">150-180 ث</span></td>
+            <td><a href="https://www.jefit.com/exercises/178/machine-incline-chest-press" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">3</td>
+            <td>Low to High Cable Flies</td>
+            <td><span class="badge badge-sets">2 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><a href="https://www.muscleandstrength.com/exercises/cable-lower-chest-raise.html" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">4</td>
+            <td>Overhead Extension</td>
+            <td><span class="badge badge-sets">2 مجاميع</span></td>
+            <td><span class="badge badge-reps">8-12</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><a href="https://drive.google.com/file/d/1v9wwp3v08SFC3udT67ny-BlzptqkHPbf/view" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">5</td>
+            <td>Rope Pushdown</td>
+            <td><span class="badge badge-sets">2 مجاميع</span></td>
+            <td><span class="badge badge-reps">8-12</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><a href="https://drive.google.com/file/d/15s6vvkb8uqjY8PnwTCwBBLEv1ca4fF_A/view" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">6</td>
+            <td>1 Hand Triceps Cable Pushdown</td>
+            <td><span class="badge badge-sets">2 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-12</span></td>
+            <td><span class="badge badge-rest">60 ث</span></td>
+            <td><a href="https://drive.google.com/file/d/1A0F2Qs4v-aKBkpONqJY4nogHqN57rkdp/view" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">7</td>
+            <td>Cable Lateral Raise</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-12</span></td>
+            <td><span class="badge badge-rest">60 ث</span></td>
+            <td><a href="https://youtube.com/shorts/S73hZEbGD4c" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">8</td>
+            <td>Abs Crunch</td>
+            <td><span class="badge badge-sets">4 مجاميع</span></td>
+            <td><span class="badge badge-reps">15-20</span></td>
+            <td><span class="badge badge-rest">30-60 ث</span></td>
+            <td><a href="https://kinxlearning.com/pages/abdominal-machine-crunch" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PULL -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🔙</span> تمارين Pull (ظهر + بايسبس)</div>
+    <div class="exercise-section">
+      <span class="section-label label-pull">Pull Day</span>
+      <div style="overflow-x:auto">
+      <table class="exercise-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>التمرين</th>
+            <th>المجاميع الأساسية</th>
+            <th>نطاق العدات</th>
+            <th>وقت الراحة</th>
+            <th>فيديو</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num-cell">1</td>
+            <td>Upper Back Pulldown</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">1x6-8 / 2x10-12</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><a href="https://drive.google.com/file/d/1fO-WXxt09zsY0W1mBvS76tmGxYmKx4fW/view" target="_blank" class="video-link">▶ فيديو</a></td>
+          </tr>
+          <tr>
+            <td class="num-cell">2</td>
+            <td>Seated Cable Row</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">1x6-8 / 2x10-12</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">3</td>
+            <td>Straight Arm Pulldown</td>
+            <td><span class="badge badge-sets">2 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">4</td>
+            <td>Hyperextension</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">8-12</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">5</td>
+            <td>Plank</td>
+            <td><span class="badge badge-sets">2 مجاميع</span></td>
+            <td><span class="badge badge-reps">30 ث</span></td>
+            <td><span class="badge badge-rest">30 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">6</td>
+            <td>Calf Raise Machine</td>
+            <td><span class="badge badge-sets">4 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-12</span></td>
+            <td><span class="badge badge-rest">60 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOWER -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🦵</span> تمارين Lower (أرجل)</div>
+    <div class="exercise-section">
+      <span class="section-label label-lower">Lower Day</span>
+      <div style="overflow-x:auto">
+      <table class="exercise-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>التمرين</th>
+            <th>المجاميع الأساسية</th>
+            <th>نطاق العدات</th>
+            <th>وقت الراحة</th>
+            <th>فيديو</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num-cell">1</td>
+            <td>Leg Press</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">1x6-8 / 2x10-12</span></td>
+            <td><span class="badge badge-rest">150-180 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">2</td>
+            <td>Leg Extension</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">3</td>
+            <td>Leg Curl</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">4</td>
+            <td>Hip Thrust</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">90-120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">5</td>
+            <td>Calf Raise</td>
+            <td><span class="badge badge-sets">4 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">60 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPPER -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🏆</span> تمارين Upper (جزء علوي كامل)</div>
+    <div class="exercise-section">
+      <span class="section-label label-upper">Upper Day</span>
+      <div style="overflow-x:auto">
+      <table class="exercise-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>التمرين</th>
+            <th>المجاميع الأساسية</th>
+            <th>نطاق العدات</th>
+            <th>وقت الراحة</th>
+            <th>فيديو</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num-cell">1</td>
+            <td>DB Lateral Raise</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">2</td>
+            <td>Machine Shoulders Press</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">1x6-8 / 2x10-12</span></td>
+            <td><span class="badge badge-rest">180 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">3</td>
+            <td>Machine Flat Press</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-15</span></td>
+            <td><span class="badge badge-rest">120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">4</td>
+            <td>Underhand Pulldown</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">8-12</span></td>
+            <td><span class="badge badge-rest">120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">5</td>
+            <td>Straight Bar Pushdown</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">8-12</span></td>
+            <td><span class="badge badge-rest">120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">6</td>
+            <td>EZ Bar Curl</td>
+            <td><span class="badge badge-sets">2 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-12</span></td>
+            <td><span class="badge badge-rest">120 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+          <tr>
+            <td class="num-cell">7</td>
+            <td>Cable Wrist Curl</td>
+            <td><span class="badge badge-sets">3 مجاميع</span></td>
+            <td><span class="badge badge-reps">10-12</span></td>
+            <td><span class="badge badge-rest">90 ث</span></td>
+            <td><span style="color:#666">-</span></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARDIO -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🏃</span> الكارديو</div>
+    <div class="cardio-grid">
+      <div class="cardio-card">
+        <h4>بعد كل تمرينة</h4>
+        <p>متوسط السرعة + مد سريع على سرعة 5 إلى 6<br><strong style="color:var(--green)">20 دقيقة</strong><br><span style="font-size:0.85em;color:#aaa">لازم يتعملوا ورا بعض بدون راحة في النص</span></p>
+      </div>
+      <div class="cardio-card">
+        <h4>في يومين الراحة</h4>
+        <p>متوسط السرعة + مد سريع على سرعة 5 إلى 6<br><strong style="color:var(--green)">20 دقيقة</strong><br><span style="font-size:0.85em;color:#aaa">ممكن يتعمل في الشارع مش لازم جيم</span></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== NUTRITION SECTION ===== -->
+<div id="nutrition" class="section">
+
+  <div class="day-type-toggle">
+    <button class="toggle-btn active-training" onclick="showMealPlan('training')">🏋️ أيام التمرين</button>
+    <button class="toggle-btn" onclick="showMealPlan('rest')" id="restBtn">😴 أيام الراحة / الكارديو</button>
+  </div>
+
+  <!-- Training Days -->
+  <div id="meal-training">
+    <div class="info-banner">
+      <strong>💧 المياه 3 لتر على مدار اليوم</strong><br>
+      متاح استخدام التوابل على جميع الوجبات — مفيش حاجة اسمها تقطع ملح أو تاكل أكل ملوش طعم
+    </div>
+    <div class="meal-grid">
+      <div class="meal-card">
+        <div class="meal-title">🌅 Meal 1</div>
+        <ul class="meal-items">
+          <li>100ج موز أو 200ج تفاح أو 30ج تمر أو 30ج عسل أو 300ج فراولة</li>
+          <li>3 بيضات أو 45ج جبنة شيدر أو 45ج جبنة جودة</li>
+          <li>50ج عيش أو 35ج شوفان أو 140ج بطاطس</li>
+          <li>20ج مكسرات مشكلة أو 20ج زبدة فول سوداني أو 10ج زيت زيتون</li>
+        </ul>
+        <div class="meal-note">الجبنة تكون طبيعية مش مصنعة + مش لايت | نوع العيش مش هيفرق (توست، بلدي، تورتيلا) أهم حاجة الكمية | تقدر تستخدم زيت الزيتون على مدار اليوم مش لازم في وجبة واحدة</div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-title">☀️ Meal 2</div>
+        <ul class="meal-items">
+          <li>150ج صدور فراخ أو 200ج سمك فيليه أبيض أو 50ج بروتين باودر</li>
+          <li>30ج رز أو 30ج مكرونة أو 40ج عيش أو 120ج بطاطس</li>
+          <li>150ج خضروات خضراء</li>
+        </ul>
+        <div class="meal-note">جرامات تبديل اللحمة في شيت التبديلات | أنواع الخضار: خيار، خس، جرجير، بروكلي، كوسة — اختار اللي يعجبك أو ميكس بينهم + ضيف توابل</div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-title">🌤️ Meal 3</div>
+        <ul class="meal-items">
+          <li>150ج صدور فراخ أو 200ج سمك فيليه أبيض أو 50ج بروتين باودر</li>
+          <li>30ج رز أو 30ج مكرونة أو 40ج عيش أو 120ج بطاطس</li>
+          <li>150ج خضروات خضراء</li>
+        </ul>
+      </div>
+      <div class="meal-card">
+        <div class="meal-title">🌙 Meal 4</div>
+        <ul class="meal-items">
+          <li>180ج زبادي يوناني زيرو فات أو 75ج صدور فراخ أو 30ج بروتين باودر</li>
+          <li>50ج عيش أو 35ج شوفان أو 140ج بطاطس</li>
+          <li>20ج مكسرات مشكلة أو 20ج زبدة فول سوداني أو 10ج زيت زيتون</li>
+        </ul>
+        <div class="meal-note">تقدر توظف الوجبة دي على مدار اليوم — الصدور تضيفها على الوجبة 2 أو 3، نفس الكلام مع النشويات والمكسرات</div>
+      </div>
+      <div class="meal-card preworkout">
+        <div class="meal-title">⚡ Pre Workout Snack</div>
+        <ul class="meal-items">
+          <li>مصدر كافيين (قهوة بلاك أو بري وركاوت أو مكمل كافيين)</li>
+          <li>100ج موز أو 30ج تمر أو 30ج عسل</li>
+          <li>10ج مكسرات مشكلة أو 10ج زبدة فول سوداني</li>
+        </ul>
+        <div class="meal-note">لو هتاخد بري وركاوت متشربش قهوة | لبدائل أكتر لكل أصناف الأكل افتح شيت التبديلات | المكسرات مهمة مع السناك ده متوديهاش في وقت تاني فاليوم</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rest Days -->
+  <div id="meal-rest" style="display:none">
+    <div class="info-banner">
+      <strong>😴 نظام أيام الراحة أو الكارديو فقط</strong><br>
+      كميات أقل من النشويات — ركز على البروتين والخضار
+    </div>
+    <div class="meal-grid">
+      <div class="meal-card">
+        <div class="meal-title">🌅 Meal 1</div>
+        <ul class="meal-items">
+          <li>100ج موز أو 200ج تفاح أو 30ج تمر أو 30ج عسل أو 300ج فراولة</li>
+          <li>3 بيضات أو 45ج جبنة شيدر أو 45ج جبنة جودة</li>
+          <li>50ج عيش أو 35ج شوفان أو 140ج بطاطس</li>
+          <li>20ج مكسرات مشكلة أو 20ج زبدة فول سوداني أو 10ج زيت زيتون</li>
+        </ul>
+        <div class="meal-note">الجبنة تكون طبيعية مش مصنعة + مش لايت | نوع العيش مش هيفرق أهم حاجة الكمية | تقدر تستخدم زيت الزيتون على مدار اليوم</div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-title">☀️ Meal 2</div>
+        <ul class="meal-items">
+          <li>150ج صدور فراخ أو 200ج سمك فيليه أبيض أو 2 سكوب بروتين</li>
+          <li>30ج رز أو 30ج مكرونة أو 40ج عيش أو 120ج بطاطس</li>
+          <li>150ج خضروات خضراء</li>
+        </ul>
+        <div class="meal-note">جرامات تبديل اللحمة في شيت التبديلات</div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-title">🌤️ Meal 3</div>
+        <ul class="meal-items">
+          <li>150ج صدور فراخ أو 200ج سمك فيليه أبيض أو 2 سكوب بروتين</li>
+          <li>30ج رز أو 30ج مكرونة أو 40ج عيش أو 120ج بطاطس</li>
+          <li>150ج خضروات خضراء</li>
+        </ul>
+      </div>
+      <div class="meal-card">
+        <div class="meal-title">🌙 Meal 4</div>
+        <ul class="meal-items">
+          <li>180ج زبادي يوناني زيرو فات أو 75ج صدور فراخ أو 30ج بروتين باودر</li>
+          <li>نشويات اختيارية</li>
+        </ul>
+        <div class="meal-note">تقدر توظف الوجبة دي على مدار اليوم</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== SUPPLEMENTS SECTION ===== -->
+<div id="supplements" class="section">
+  <div class="info-banner">
+    <strong>💊 المكملات الغذائية</strong><br>
+    المكملات الأساسية مهمة — الاختيارية حسب احتياجك وميزانيتك
+  </div>
+  <div class="supp-grid">
+    <div class="supp-card">
+      <div class="supp-name">🌿 Multi-Vitamin</div>
+      <div class="supp-detail">
+        <div class="supp-row">
+          <span class="supp-label">الماركات</span>
+          <span class="supp-value">Centrum / Limitless / California Gold / Windmill / Olimp</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">الجرعة</span>
+          <span class="supp-value">حباية</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">التوقيت</span>
+          <span class="supp-value">مع أول وجبة</span>
+        </div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="supp-name">🐟 Omega-3s</div>
+      <div class="supp-detail">
+        <div class="supp-row">
+          <span class="supp-label">الماركات</span>
+          <span class="supp-value">Limitless / California Gold</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">الجرعة</span>
+          <span class="supp-value">حبايتين</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">التوقيت</span>
+          <span class="supp-value">1 مع الوجبة 2 — 1 مع الوجبة 3</span>
+        </div>
+      </div>
+    </div>
+    <div class="supp-card">
+      <div class="supp-name">⚡ Creatine</div>
+      <div class="supp-detail">
+        <div class="supp-row">
+          <span class="supp-label">الماركات</span>
+          <span class="supp-value">Creapure (Evolve or ON)</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">الجرعة</span>
+          <span class="supp-value">5ج يومياً</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">التوقيت</span>
+          <span class="supp-value">5ج بعد التمرين — في أي وقت في أيام الراحة</span>
+        </div>
+      </div>
+    </div>
+    <div class="supp-card" style="border-top-color:var(--orange)">
+      <div class="supp-name" style="color:var(--orange)">🥛 Isolate Protein <span class="supp-optional">اختياري</span></div>
+      <div class="supp-detail">
+        <div class="supp-row">
+          <span class="supp-label">الماركات</span>
+          <span class="supp-value">Evolve / Gold Standard / Iso100</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">الجرعة</span>
+          <span class="supp-value">على حسب تبديلات أكلك</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">التوقيت</span>
+          <span class="supp-value">-</span>
+        </div>
+      </div>
+    </div>
+    <div class="supp-card" style="border-top-color:var(--orange)">
+      <div class="supp-name" style="color:var(--orange)">🔥 Pre Workout <span class="supp-optional">اختياري</span></div>
+      <div class="supp-detail">
+        <div class="supp-row">
+          <span class="supp-label">الماركات</span>
+          <span class="supp-value">Evolve / DR Mohamed Mahmoud / Ghost / Ryse</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">الجرعة</span>
+          <span class="supp-value">ابتدي بنصف جرعة على 350مل مياه</span>
+        </div>
+        <div class="supp-row">
+          <span class="supp-label">التوقيت</span>
+          <span class="supp-value">30 دقيقة قبل التمرين</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SWAPS SECTION ===== -->
+<div id="swaps" class="section">
+  <div class="swaps-tabs">
+    <button class="swap-tab active" onclick="showSwap('fruit')">🍎 الفاكهة</button>
+    <button class="swap-tab" onclick="showSwap('protein')">🍗 البروتين</button>
+    <button class="swap-tab" onclick="showSwap('nuts')">🥜 المكسرات</button>
+    <button class="swap-tab" onclick="showSwap('carbs')">🍚 الكارب</button>
+  </div>
+
+  <!-- Fruit Swaps -->
+  <div id="swap-fruit" class="swap-content active">
+    <div class="card">
+      <div class="card-title"><span class="icon">🍎</span> تبديل صف الفاكهة</div>
+      <div style="overflow-x:auto">
+      <table class="swap-table">
+        <thead><tr><th>الكمية</th><th>الصنف</th></tr></thead>
+        <tbody>
+          <tr><td class="gram">200 جرام</td><td>تفاح</td></tr>
+          <tr><td class="gram">100 جرام</td><td>موز</td></tr>
+          <tr><td class="gram">150 جرام</td><td>عنب</td></tr>
+          <tr><td class="gram">240 جرام</td><td>برتقال</td></tr>
+          <tr><td class="gram">140 جرام</td><td>مانجو</td></tr>
+          <tr><td class="gram">170 جرام</td><td>كيوي</td></tr>
+          <tr><td class="gram">300 جرام</td><td>فراولة</td></tr>
+          <tr><td class="gram">165 جرام</td><td>أناناس</td></tr>
+          <tr><td class="gram">250 جرام</td><td>شمام (كنتالوب)</td></tr>
+          <tr><td class="gram">300 جرام</td><td>بطيخ</td></tr>
+          <tr><td class="gram">30 جرام</td><td>تمر</td></tr>
+          <tr><td class="gram">150 جرام</td><td>تين طازج</td></tr>
+          <tr><td class="gram">120 جرام</td><td>رمان</td></tr>
+          <tr><td class="gram">150 جرام</td><td>توت أزرق (بلوبيري)</td></tr>
+          <tr><td class="gram">200 جرام</td><td>خوخ</td></tr>
+          <tr><td class="gram">220 جرام</td><td>مشمش</td></tr>
+          <tr><td class="gram">180 جرام</td><td>برقوق</td></tr>
+          <tr><td class="gram">70 جرام</td><td>أفوكادو</td></tr>
+          <tr><td class="gram">200 جرام</td><td>توت أسود (بلاكبيري)</td></tr>
+          <tr><td class="gram">240 جرام</td><td>توت أحمر (راسبيري)</td></tr>
+          <tr><td class="gram">160 جرام</td><td>كرز</td></tr>
+          <tr><td class="gram">190 جرام</td><td>جوافة</td></tr>
+          <tr><td class="gram">180 جرام</td><td>كمثرى</td></tr>
+          <tr><td class="gram">220 جرام</td><td>نارنج</td></tr>
+          <tr><td class="gram">30 جرام</td><td>زبيب</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Protein Swaps -->
+  <div id="swap-protein" class="swap-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🍗</span> تبديلات البروتين</div>
+      <div style="overflow-x:auto">
+      <table class="swap-table">
+        <thead><tr><th>بدل ده اللي هتشيله</th><th>الصنف البديل</th></tr></thead>
+        <tbody>
+          <tr><td>150ج صدور فراخ + 20ج مكسرات</td><td>150ج لحمة حمرا</td></tr>
+          <tr><td>150ج صدور فراخ + 35ج مكسرات</td><td>150ج سالمون</td></tr>
+          <tr><td>150ج صدور فراخ + 10ج مكسرات</td><td>150ج كبدة دجاج (مرة فالأسبوع)</td></tr>
+          <tr><td>150ج صدور فراخ + 10ج مكسرات</td><td>150ج كبدة بقري (مرة فالأسبوع)</td></tr>
+          <tr><td>150ج صدور دجاج</td><td>180ج جمبري</td></tr>
+          <tr><td>3 بيضات</td><td>20ج واي بروتين + 25ج مكسرات</td></tr>
+          <tr><td>75ج صدور دجاج</td><td>1 سكوب بروتين (30ج)</td></tr>
+          <tr><td>صف الفاكهة (100ج موز...)</td><td>300ج حليب خالي الدسم</td></tr>
+          <tr><td>1 بيضة</td><td>35ج لبنة</td></tr>
+          <tr><td>3 بيضات</td><td>70ج صدور فراخ + 25ج مكسرات</td></tr>
+          <tr><td>70ج صدور فراخ + نص صف فاكهة</td><td>200ج زبادي يوناني زيرو فات</td></tr>
+          <tr><td>1 بيضة</td><td>20ج جبنة حلومي</td></tr>
+          <tr><td>1 بيضة</td><td>20ج جبنة موتزريلا</td></tr>
+          <tr><td>1 بيضة</td><td>20ج جبنة فيتا طبيعية</td></tr>
+          <tr><td>1 بيضة</td><td>60ج جبنة قريش</td></tr>
+          <tr><td>150ج صدور دجاج + 50ج مكسرات</td><td>200ج رنجة</td></tr>
+          <tr><td>150ج صدور دجاج</td><td>200ج تونة دايت في محلول ملحي</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nuts Swaps -->
+  <div id="swap-nuts" class="swap-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🥜</span> تبديل بدل 20ج مكسرات</div>
+      <div style="overflow-x:auto">
+      <table class="swap-table">
+        <thead><tr><th>الكمية</th><th>الصنف</th></tr></thead>
+        <tbody>
+          <tr><td class="gram">20 جرام</td><td>لوز</td></tr>
+          <tr><td class="gram">20 جرام</td><td>جوز</td></tr>
+          <tr><td class="gram">20 جرام</td><td>كاجو</td></tr>
+          <tr><td class="gram">20 جرام</td><td>بندق</td></tr>
+          <tr><td class="gram">20 جرام</td><td>فستق</td></tr>
+          <tr><td class="gram">20 جرام</td><td>زبدة الفول السوداني</td></tr>
+          <tr><td class="gram">20 جرام</td><td>زبدة اللوز</td></tr>
+          <tr><td class="gram">70 جرام</td><td>أفوكادو</td></tr>
+          <tr><td class="gram">10 جرام</td><td>زيت زيتون</td></tr>
+          <tr><td class="gram">10 جرام</td><td>زيت جوز الهند</td></tr>
+          <tr><td class="gram">10 جرام</td><td>زيت بذور الكتان</td></tr>
+          <tr><td class="gram">10 جرام</td><td>زيت سمسم</td></tr>
+          <tr><td class="gram">15 جرام</td><td>بذور شيا</td></tr>
+          <tr><td class="gram">20 جرام</td><td>بذور كتان</td></tr>
+          <tr><td class="gram">20 جرام</td><td>بذور دوار الشمس</td></tr>
+          <tr><td class="gram">15 جرام</td><td>طحينة</td></tr>
+          <tr><td class="gram">20 جرام</td><td>لب</td></tr>
+          <tr><td class="gram">25 جرام</td><td>سبريد حمص</td></tr>
+          <tr><td class="gram">10 جرام</td><td>زبدة</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carbs Swaps -->
+  <div id="swap-carbs" class="swap-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🍚</span> تبديلات الكارب (قبل الطهي)</div>
+      <div style="overflow-x:auto">
+      <table class="swap-table">
+        <thead><tr><th>بدل</th><th>الصنف البديل</th></tr></thead>
+        <tbody>
+          <tr><td>نفس جرامات الرز</td><td>الفشار</td></tr>
+          <tr><td>35ج رز</td><td>100ج فصوليا حمرا (مطهي)</td></tr>
+          <tr><td>نفس جرامات الرز</td><td>البرغل (قبل الطهي)</td></tr>
+          <tr><td>نفس جرامات الرز</td><td>كسكسي (قبل الطهي)</td></tr>
+          <tr><td>30ج رز</td><td>100ج ذرا صفرا (مطهي)</td></tr>
+          <tr><td>150ج خضار</td><td>100ج باذنجان (قبل الطهي)</td></tr>
+          <tr><td>صف فاكهة</td><td>220ج بنجر</td></tr>
+          <tr><td>30ج رز</td><td>50ج حمص مطهي</td></tr>
+          <tr><td>50ج خبز</td><td>100ج فول مطهي بدون زيت</td></tr>
+          <tr><td>35ج رز قبل الطهي</td><td>100ج ترمس مطهي</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RECIPES SECTION ===== -->
+<div id="recipes" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon">👨‍🍳</span> الوصفات والفيديوهات</div>
+    <div class="recipe-grid">
+      <div class="recipe-card">
+        <div class="recipe-icon">🌙</div>
+        <div class="recipe-name">Overnight Oats</div>
+        <a href="https://www.instagram.com/reel/DLNEynBs1js/" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🍗</div>
+        <div class="recipe-name">تتبيلة الفراخ</div>
+        <a href="https://www.instagram.com/reel/DLmz4dJM2cz/" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🥚</div>
+        <div class="recipe-name">بيض شكشوكة</div>
+        <a href="https://drive.google.com/file/d/1HHhLnsfETiaj-mpB1o_3kxPsEQAcD09o/view" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🌾</div>
+        <div class="recipe-name">شوفان سخن</div>
+        <a href="https://drive.google.com/file/d/1uU5_M4y2l5zmL2xjG4x7TjahPiXBpJ5m/view" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">⚖️</div>
+        <div class="recipe-name">طريقة وزن العسل أو الزيت</div>
+        <a href="https://www.instagram.com/reel/DKP0kRQs00X/" target="_blank">▶ شاهد الفيديو</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🌯</div>
+        <div class="recipe-name">Burrito اللحمة</div>
+        <a href="https://www.instagram.com/reel/DJy5DRls0Mf/" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🍚</div>
+        <div class="recipe-name">طريقة الرز بدون دهون</div>
+        <a href="https://www.instagram.com/reel/DHqtvWNMyvR/" target="_blank">▶ شاهد الفيديو</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🎂</div>
+        <div class="recipe-name">كيكة الشوفان</div>
+        <a href="https://www.instagram.com/reel/DKZnS0VsJoF/" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🥪</div>
+        <div class="recipe-name">Egg Sandwich</div>
+        <a href="https://www.instagram.com/reel/DNLOlMLMc3c/" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🍮</div>
+        <div class="recipe-name">Protein Chia Pudding</div>
+        <a href="#" target="_blank">▶ قريباً</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">🍳</div>
+        <div class="recipe-name">طرق تحضير الأكل</div>
+        <a href="https://drive.google.com/file/d/1WFIG3s72Gtn6Fv_ergytSbiHYworw4Cf/view" target="_blank">▶ شاهد الفيديو</a>
+      </div>
+      <div class="recipe-card">
+        <div class="recipe-icon">⚡</div>
+        <div class="recipe-name">سناك قبل التمرين</div>
+        <a href="https://www.instagram.com/reel/DR7vfEoCBgB/" target="_blank">▶ شاهد الوصفة</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function showMealPlan(type) {
+  const trainBtn = document.querySelector('.toggle-btn.active-training') || document.querySelectorAll('.toggle-btn')[0];
+  const restBtn = document.getElementById('restBtn');
+  if (type === 'training') {
+    document.getElementById('meal-training').style.display = 'block';
+    document.getElementById('meal-rest').style.display = 'none';
+    document.querySelectorAll('.toggle-btn')[0].style.background = 'var(--blue)';
+    document.querySelectorAll('.toggle-btn')[0].style.borderColor = 'var(--blue)';
+    document.querySelectorAll('.toggle-btn')[0].style.color = 'white';
+    document.querySelectorAll('.toggle-btn')[1].style.background = 'transparent';
+    document.querySelectorAll('.toggle-btn')[1].style.borderColor = 'var(--border)';
+    document.querySelectorAll('.toggle-btn')[1].style.color = '#ccc';
+  } else {
+    document.getElementById('meal-training').style.display = 'none';
+    document.getElementById('meal-rest').style.display = 'block';
+    document.querySelectorAll('.toggle-btn')[1].style.background = 'var(--green)';
+    document.querySelectorAll('.toggle-btn')[1].style.borderColor = 'var(--green)';
+    document.querySelectorAll('.toggle-btn')[1].style.color = 'white';
+    document.querySelectorAll('.toggle-btn')[0].style.background = 'transparent';
+    document.querySelectorAll('.toggle-btn')[0].style.borderColor = 'var(--border)';
+    document.querySelectorAll('.toggle-btn')[0].style.color = '#ccc';
+  }
+}
+
+function showSwap(type) {
+  document.querySelectorAll('.swap-content').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.swap-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('swap-' + type).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
