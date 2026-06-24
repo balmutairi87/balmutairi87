@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اعتذار - بدر فلاح المطيري</title>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #3a3530;
+    font-family: 'Aref Ruqaa', serif;
+    direction: rtl;
+  }
+
+  .book-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book {
+    width: min(420px, 95vw);
+    height: min(620px, 94vh);
+    position: relative;
+  }
+
+  .page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #f0ebe0;
+    padding: 52px 44px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+    pointer-events: none;
+    border-radius: 3px;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+  }
+
+  .page.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  /* Paper texture */
+  .page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Dots */
+  .dots {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 7px;
+    z-index: 5;
+  }
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #ccc4b8;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.active {
+    transform: scale(1.4);
+  }
+
+  /* Title */
+  .page-title {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(26px, 7vw, 38px);
+    line-height: 1.3;
+    margin-bottom: 22px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Decorative glyph */
+  .deco {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(44px, 11vw, 66px);
+    opacity: 0.75;
+    line-height: 1;
+    margin-bottom: 16px;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Body */
+  .body-text {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(15px, 3.9vw, 19px);
+    color: #1e1a14;
+    line-height: 2.15;
+    max-width: 340px;
+    position: relative;
+    z-index: 1;
+  }
+  .body-text p { margin-bottom: 16px; }
+  .body-text p:last-child { margin-bottom: 0; }
+
+  /* Divider */
+  .divider {
+    width: 55px; height: 1px;
+    margin: 18px auto;
+    opacity: 0.55;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Song block */
+  .song-label {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(11px, 2.8vw, 13px);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    position: relative; z-index: 1;
+  }
+  .song-block {
+    padding-right: 18px;
+    text-align: right;
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(14px, 3.6vw, 17px);
+    line-height: 2.2;
+    position: relative; z-index: 1;
+    margin-top: 6px;
+    border-right: 3px solid;
+  }
+
+  /* Nav */
+  .nav {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: rgba(0,0,0,0.06);
+    border-radius: 50px;
+    padding: 5px 14px;
+    z-index: 10;
+  }
+  .nav-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: rgba(255,255,255,0.7);
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav-btn:hover { background: #fff; }
+  .nav-counter {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: 13px;
+    color: #888;
+    min-width: 38px;
+    text-align: center;
+  }
+
+  /* Closing heart */
+  .closing-heart {
+    font-size: clamp(34px, 9vw, 50px);
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  /* Cover extras */
+  .cover-sub {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(13px, 3.2vw, 16px);
+    color: #9a9080;
+    margin-top: 6px;
+    position: relative; z-index: 1;
+  }
+  .cover-to {
+    font-family: 'Aref Ruqaa', serif;
+    font-size: clamp(18px, 4.5vw, 24px);
+    margin-top: 26px;
+    position: relative; z-index: 1;
+  }
+
+  /* Audio Control */
+  .audio-control {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  
+  .signature {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    z-index: 100;
+  }
+</style>
+</head>
+<body>
+
+<div class="audio-control" onclick="toggleAudio()" title="تشغيل/إيقاف الموسيقى">
+  <span id="audio-icon">🎵</span>
+</div>
+
+<audio id="bg-audio" loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<div class="book-container">
+ <div class="book">
+
+  <!-- P1 · cover · deep crimson -->
+  <div class="page active" id="p1">
+   <div class="dots"></div>
+   <span class="deco" style="color:#b5192b;">✦</span>
+   <h1 class="page-title" style="color:#b5192b;">اعتذار</h1>
+   <div class="divider" style="background:#b5192b;"></div>
+   <p class="cover-sub">كلمات من قلب مشغول، لا من قلب بعيد</p>
+   <p class="cover-to" style="color:#b5192b;">إليكِ أنتِ</p>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">١ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+  <!-- P2 · warm amber -->
+  <div class="page" id="p2">
+   <div class="dots"></div>
+   <h2 class="page-title" style="color:#b07d00;">أعرف</h2>
+   <div class="divider" style="background:#b07d00;"></div>
+   <div class="body-text" style="color:#5a3e00;">
+    <p>أعرف أنّي أحيانًا أغيب،<br>لا عنكِ، بل في داخلي.</p>
+    <p>حين تثقل الهموم الكتف،<br>يصعب على اليد أن ترسم ابتسامة<br>كانت دومًا تُرسَم لكِ.</p>
+   </div>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">٢ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+  <!-- P3 · forest teal -->
+  <div class="page" id="p3">
+   <div class="dots"></div>
+   <span class="deco" style="color:#1a6b5a;">ﻉ</span>
+   <h2 class="page-title" style="color:#1a6b5a;">لم يكن ابتعادًا</h2>
+   <div class="divider" style="background:#1a6b5a;"></div>
+   <div class="body-text" style="color:#0e3d32;">
+    <p>انشغالي لم يكن عنكِ،<br>كان عن أشياء تعبت منها<br>قبل أن تعرفيني.</p>
+    <p>أنتِ لم تكوني يومًا سببًا للبُعد،<br>بل كنتِ السبب الوحيد<br>للعودة.</p>
+   </div>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">٣ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+  <!-- P4 · dusty plum -->
+  <div class="page" id="p4">
+   <div class="dots"></div>
+   <h2 class="page-title" style="color:#7a2560;">الهمّ لا يُسرق منّي</h2>
+   <div class="divider" style="background:#7a2560;"></div>
+   <div class="body-text" style="color:#4a1040;">
+    <p>الحياة أحيانًا تكون أثقل<br>مما ينبغي أن تعرفيه،<br>فأخبّئها عنكِ<br>لأنّي أريدكِ فرحة، لا شريكةً في الحزن.</p>
+    <p>ربما كان هذا خطأي الوحيد:<br>أحببتكِ أكثر مما شاركتكِ.</p>
+   </div>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">٤ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+  <!-- P5 · indigo -->
+  <div class="page" id="p5">
+   <div class="dots"></div>
+   <h2 class="page-title" style="color:#2e3fa3;">ما يقوله الغناء</h2>
+   <div class="divider" style="background:#2e3fa3;"></div>
+   <p class="song-label" style="color:#2e3fa3;">♩ من أغنية "الشقى"</p>
+   <div class="song-block" style="border-right-color:#2e3fa3; color:#1a2570;">
+    <p>أنا اعتذر<br>إن كان باقيلي عذر<br>وأنا أوعدك<br>اني أبد ما أقهرك<br>أرجوك أبي منك<br>أنا فرصة عمر</p>
+   </div>
+   <div class="divider" style="background:#2e3fa3;"></div>
+   <div class="body-text" style="color:#1a2570; font-size:clamp(13px,3.2vw,15px);">
+    <p>هذي الكلمات تقول ما عجز لساني عنه.</p>
+   </div>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">٥ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+  <!-- P6 · terracotta -->
+  <div class="page" id="p6">
+   <div class="dots"></div>
+   <span class="deco" style="color:#c0511a;">♡</span>
+   <h2 class="page-title" style="color:#c0511a;">أنتِ لستِ ثانيًا</h2>
+   <div class="divider" style="background:#c0511a;"></div>
+   <div class="body-text" style="color:#6b2800;">
+    <p>ظننتِ أنّ الانشغال يعني النسيان،<br>لكنّ الحقيقة أنّك<br>كنتِ دومًا الفكرة الأولى<br>حتى حين لم أجد كلماتٍ أُعبّر بها.</p>
+    <p>أنتِ لستِ الأخيرة في قائمتي،<br>أنتِ السبب الذي يجعلني<br>أكمل ما تبقّى منها.</p>
+   </div>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">٦ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+  <!-- P7 · slate blue -->
+  <div class="page" id="p7">
+   <div class="dots"></div>
+   <h2 class="page-title" style="color:#2a5c8a;">وعد</h2>
+   <div class="divider" style="background:#2a5c8a;"></div>
+   <div class="body-text" style="color:#0f2e4a;">
+    <p>لن أعدكِ بأن تختفي الهموم،<br>فالحياة لا تسأل إذنًا.</p>
+    <p>لكنّي أعدكِ<br>أن تكوني دومًا<br>أوّل ما أعود إليه<br>حين تنتهي العاصفة.</p>
+    <p>وأعدكِ أن أخبركِ<br>بدلًا من أن أختفي.</p>
+   </div>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">٧ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+  <!-- P8 · closing · crimson -->
+  <div class="page" id="p8">
+   <div class="dots"></div>
+   <div class="closing-heart" style="color:#b5192b;">♥</div>
+   <h2 class="page-title" style="color:#b5192b;">آسف</h2>
+   <div class="divider" style="background:#b5192b;"></div>
+   <div class="body-text" style="color:#3a0a0a;">
+    <p>آسف لكلّ لحظة شعرتِ فيها<br>أنّكِ وحدك.</p>
+    <p>آسف لكلّ صمت فُسِّر خطأً.</p>
+    <p>أنتِ تستحقين كلّ الحضور،<br>وأنا أتعلّم كيف أُعطيكِ إيّاه<br>رغم كلّ شيء.</p>
+    <div class="divider" style="background:#b5192b; margin-top:20px;"></div>
+    <p style="color:#b5192b; font-size:clamp(17px,4.2vw,22px);">أحبّكِ.</p>
+   </div>
+   <div class="nav">
+    <button class="nav-btn" onclick="go(-1)">◀</button>
+    <span class="nav-counter">٨ / ٨</span>
+    <button class="nav-btn" onclick="go(1)">▶</button>
+   </div>
+  </div>
+
+ </div>
+</div>
+
+<div class="signature">
+  بدر فلاح المطيري - وزارة الأوقاف والشؤون الإسلامية - أكتوبر 2025
+</div>
+
+<script>
+ const total = 8;
+ let cur = 1;
+ const colors = ['#b5192b','#b07d00','#1a6b5a','#7a2560','#2e3fa3','#c0511a','#2a5c8a','#b5192b'];
+ 
+ const audio = document.getElementById('bg-audio');
+ const audioIcon = document.getElementById('audio-icon');
+ let isPlaying = false;
+
+ function toggleAudio() {
+   if (isPlaying) {
+     audio.pause();
+     audioIcon.innerText = '🔇';
+   } else {
+     audio.play().catch(e => console.log("Audio play blocked by browser"));
+     audioIcon.innerText = '🎵';
+   }
+   isPlaying = !isPlaying;
+ }
+
+ // Try to play on first interaction
+ document.body.addEventListener('click', function() {
+   if (!isPlaying) {
+     audio.play().catch(e => console.log("Audio play blocked"));
+     isPlaying = true;
+     audioIcon.innerText = '🎵';
+   }
+ }, { once: true });
+
+ function buildDots() {
+   document.querySelectorAll('.dots').forEach((el, pi) => {
+     el.innerHTML = '';
+     for (let i = 1; i <= total; i++) {
+       const d = document.createElement('div');
+       d.className = 'dot' + (i === pi+1 ? ' active' : '');
+       d.style.background = i === pi+1 ? colors[pi] : '#ccc4b8';
+       el.appendChild(d);
+     }
+   });
+ }
+
+ function updateDots() {
+   document.querySelectorAll('.page').forEach((pg, pi) => {
+     pg.querySelectorAll('.dot').forEach((d, di) => {
+       const isActive = di+1 === cur;
+       d.classList.toggle('active', isActive);
+       d.style.background = isActive ? colors[pi] : '#ccc4b8';
+     });
+   });
+ }
+
+ function go(dir) {
+   const next = cur + dir;
+   if (next < 1 || next > total) return;
+   document.getElementById('p'+cur).classList.remove('active');
+   cur = next;
+   document.getElementById('p'+cur).classList.add('active');
+   updateDots();
+ }
+
+ // Swipe
+ let tx = 0;
+ const book = document.querySelector('.book');
+ book.addEventListener('touchstart', e => tx = e.touches[0].clientX);
+ book.addEventListener('touchend', e => {
+   const dx = tx - e.changedTouches[0].clientX;
+   if (Math.abs(dx) > 40) go(dx > 0 ? 1 : -1);
+ });
+
+ buildDots();
+</script>
+</body>
+</html>
