@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لقاء لم يكن في الحسبان</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --charcoal: #0d0c0b;
+            --ivory: #ece7de;
+            --gold: #d4af37;
+            --gold-soft: rgba(212, 175, 55, 0.6);
+            --gray: #b9b2a6;
+            --bg-gradient: radial-gradient(circle at center, #1a1918 0%, #0d0c0b 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--charcoal);
+            color: var(--ivory);
+            font-family: 'Noto Naskh Arabic', serif;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Ambient Background */
+        #bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-gradient);
+            z-index: -1;
+        }
+
+        #bg-texture {
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Progress Bar */
+        #progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gold);
+            z-index: 100;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Welcome Screen */
+        #welcome-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--charcoal);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        #welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .enter-btn {
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-family: 'Aref Ruqaa', serif;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            letter-spacing: 2px;
+        }
+
+        .enter-btn:hover {
+            background: var(--gold);
+            color: var(--charcoal);
+            box-shadow: 0 0 20px var(--gold-soft);
+        }
+
+        /* Audio Controls */
+        .sound-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 50;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid var(--gold-soft);
+            background: rgba(13, 12, 11, 0.8);
+            color: var(--gold);
+            display: flex;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .sound-btn:hover {
+            border-color: var(--gold);
+            transform: scale(1.1);
+        }
+
+        .sound-btn.muted svg {
+            opacity: 0.5;
+        }
+
+        /* Sections Layout */
+        section {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 10%;
+            z-index: 10;
+        }
+
+        .frame {
+            position: absolute;
+            inset: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            pointer-events: none;
+            transition: inset 1s ease;
+        }
+
+        section.visible .frame {
+            inset: 30px;
+        }
+
+        .pagenum {
+            position: absolute;
+            top: 50px;
+            font-family: 'Aref Ruqaa', serif;
+            color: var(--gold-soft);
+            font-size: 14px;
+            letter-spacing: 4px;
+        }
+
+        h1 {
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            color: var(--gold);
+            font-size: clamp(40px, 8vw, 80px);
+            line-height: 1.3;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        h2 {
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            color: var(--gold);
+            font-size: clamp(28px, 5vw, 45px);
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+        }
+
+        p {
+            font-size: clamp(18px, 2.5vw, 24px);
+            line-height: 2.2;
+            color: var(--ivory);
+            max-width: 800px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sub {
+            font-family: 'Aref Ruqaa', serif;
+            color: var(--gray);
+            font-size: clamp(16px, 2vw, 20px);
+            margin-top: 25px;
+            opacity: 0;
+            transition: opacity 1.5s ease 0.8s;
+        }
+
+        .divider {
+            width: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 30px auto;
+            transition: width 1.5s ease 0.5s;
+        }
+
+        section.visible h1, section.visible h2, section.visible p, section.visible .sub {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section.visible .divider {
+            width: 200px;
+        }
+
+        .cover .sub2 {
+            font-family: 'Amiri', serif;
+            font-style: italic;
+            color: var(--gray);
+            font-size: 18px;
+            margin-top: 50px;
+            opacity: 0;
+            transition: opacity 2s ease 1s;
+        }
+
+        section.visible .sub2 {
+            opacity: 1;
+        }
+
+        .floating-dots {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .dot-particle {
+            position: absolute;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0.2;
+            filter: blur(1px);
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); }
+            100% { transform: translateY(-100px) translateX(50px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="bg-overlay"></div>
+<div id="bg-texture"></div>
+
+<div id="welcome-screen">
+    <h1 style="opacity: 1; transform: none; margin-bottom: 40px; font-size: 32px; color: var(--ivory);">لقاء لم يكن في الحسبان</h1>
+    <button class="enter-btn" id="startBtn">ابدأ التجربة</button>
+</div>
+
+<button class="sound-btn" id="soundToggle" aria-label="تحكم بالصوت">
+    <svg id="soundIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </svg>
+</button>
+
+<audio id="bgAudio" loop>
+    <source src="https://www.free-stock-music.com/music/fscm-productions-flowers.mp3" type="audio/mpeg">
+</audio>
+
+<div class="floating-dots" id="particles"></div>
+
+<!-- 1 -->
+<section class="cover">
+    <div class="frame"></div>
+    <span class="pagenum">٠١</span>
+    <h1>لقاء لم يكن في الحسبان</h1>
+    <p class="sub">حين تُربك المصادفة ترتيب الأيام</p>
+    <div class="sub2">بقلم بدر</div>
+</section>
+
+<!-- 2 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٢</span>
+    <h2>يوم كسائر الأيام</h2>
+    <div class="divider"></div>
+    <p>
+        كان يومًا لا يشبه إلا نفسه، أوراق تُرتّب، ومعاملات تمر كما تعوّدت أن تمر،
+        ودقائق تمشي بلا ملامح، لا تحمل خبرًا، ولا تعد بشيء.
+        لم يكن في البال شيء يُنتظر، ولا في القلب موعدٌ يُحسب له حساب.
+    </p>
+</section>
+
+<!-- 3 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٣</span>
+    <h2>دخلتِ بلا استئذان</h2>
+    <div class="divider"></div>
+    <p>
+        جئتِ كما يجيء الغرباء، بخطوة عابرة، ومعاملة روتينية لا تحمل أكثر من توقيع،
+        لم تقصدي شيئًا، ولم يكن في نيتك أن تُحدثي أثرًا،
+        لكن بعض الدخول لا يُشبه العبور، وبعض اللقاءات تُغيّر ترتيب اليوم كله بلا مقدّمات.
+    </p>
+</section>
+
+<!-- 4 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٤</span>
+    <h2>عينان لم تكونا في الحسبان</h2>
+    <div class="divider"></div>
+    <p>
+        لم أنتبه لتفاصيل المعاملة بقدر ما أسرتني عينان هادئتان،
+        فيهما سكونٌ يُشبه سكون الصباح الأول، ونظرة عابرة كفيلة أن تُبقي القلب واقفًا في مكانه دقيقة كاملة.
+        لم تكن لحظة طويلة، لكنها كانت كافية.
+    </p>
+</section>
+
+<!-- 5 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٥</span>
+    <h2>جمالٌ لا يستأذن</h2>
+    <div class="divider"></div>
+    <p>
+        جمالٌ عذبٌ، لا يتكلّف الظهور ولا يسعى إليه، حضورٌ هادئ يسرق الانتباه دون أن يرفع صوته،
+        ويترك في المكان أثرًا يبقى بعد أن تُغلق الأبواب، ويخفت صوت الأوراق.
+    </p>
+</section>
+
+<!-- 6 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٦</span>
+    <h2>محاولة التجاهل</h2>
+    <div class="divider"></div>
+    <p>
+        حاولتُ أن أُكمل يومي كما هو، أن أُعيد الأوراق إلى مكانها، والانتباه إلى مساره،
+        لكنّ بعض الوجوه لا تُطاع فيها محاولات النسيان، تبقى معلّقة في الذاكرة كصورة لم تُطلب، لكنها بقيت.
+    </p>
+</section>
+
+<!-- 7 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٧</span>
+    <h2>ويوم آخر... عدتِ</h2>
+    <div class="divider"></div>
+    <p>
+        ظننتُ أن اللقاء كان مرة واحدة تُطوى كما تُطوى المعاملات، لكن يومًا آخر جاء،
+        وجئتِ فيه من جديد، بلا موعد، وبلا سبب سوى أن الحياة أرادت أن تُكرر المصادفة مرتين.
+    </p>
+</section>
+
+<!-- 8 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٨</span>
+    <h2>يقينٌ هادئ</h2>
+    <div class="divider"></div>
+    <p>
+        عندها أدركتُ أن ما بداخلي لم يكن وليد لحظة عابرة، بل إعجابٌ هادئ استقرّ دون استئذان،
+        لا يصخب، ولا يطلب شيئًا، إعجابٌ يكتفي بأن يكون، ولا يبحث عمّا بعده.
+    </p>
+</section>
+
+<!-- 9 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">٠٩</span>
+    <h2>ليس حبًا، بل إعجاب</h2>
+    <div class="divider"></div>
+    <p>
+        الحب يحتاج إلى وقت لم يكن بيننا، وحكاية لم تُكتب بعد،
+        أمّا الإعجاب فيكفيه لقاءان عابران، ونظرة صادقة، ليقول ما يريد قوله دون أن يدّعي أكثر من حجمه.
+    </p>
+</section>
+
+<!-- 10 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">١٠</span>
+    <h2>أثرٌ من لقاءٍ قصير</h2>
+    <div class="divider"></div>
+    <p>
+        مرّ اللقاء سريعًا كما تمرّ الأشياء الجميلة، لكنه ترك في اليوم ملمحًا لم يكن فيه من قبل،
+        وابتسامة صغيرة تعود كلما تذكّرتُ تفاصيل تلك الصدفة البسيطة.
+    </p>
+</section>
+
+<!-- 11 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">١١</span>
+    <h2>تساؤلٌ هادئ</h2>
+    <div class="divider"></div>
+    <p>
+        هل ستمرّين من هذا الطريق مرة أخرى؟ لا أدري، ولا أريد أن أُثقل سؤالًا بسيطًا بأكثر من حجمه،
+        يكفي أن أعرف أن بعض الأيام تحمل مفاجآت جميلة، دون أن تُخبرنا متى تأتي.
+    </p>
+</section>
+
+<!-- 12 -->
+<section>
+    <div class="frame"></div>
+    <span class="pagenum">١٢</span>
+    <h2>القبول بما كان</h2>
+    <div class="divider"></div>
+    <p>
+        أختار أن أترك اللحظة كما جاءت، جميلة وخفيفة، بلا انتظار يُثقلها، ولا توقّعات تُفسدها،
+        فبعض المشاعر تكتمل حين تُترك كما هي، إعجابًا صادقًا لا يبحث عن اسم أكبر منه.
+    </p>
+</section>
+
+<!-- 13 -->
+<section class="cover">
+    <div class="frame"></div>
+    <span class="pagenum">١٣</span>
+    <h1>وتبقى الذكرى</h1>
+    <div class="divider"></div>
+    <p>ذكرى لقاءٍ صغير، غيّر لوقتٍ قصير إيقاع الأيام.</p>
+    <div class="sub2" style="color: var(--gold); font-family: 'Aref Ruqaa', serif; letter-spacing: 2px;">النهاية</div>
+</section>
+
+<script>
+    // Intersection Observer for visibility
+    const sections = document.querySelectorAll('section');
+    const progress = document.getElementById('progress');
+    
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                // Update progress
+                const index = Array.from(sections).indexOf(e.target);
+                const percent = ((index + 1) / sections.length) * 100;
+                progress.style.width = percent + '%';
+            }
+        });
+    }, { threshold: 0.5 });
+
+    sections.forEach(s => io.observe(s));
+
+    // Audio & Welcome Screen
+    const audio = document.getElementById('bgAudio');
+    const startBtn = document.getElementById('startBtn');
+    const welcome = document.getElementById('welcome-screen');
+    const soundToggle = document.getElementById('soundToggle');
+    const soundIcon = document.getElementById('soundIcon');
+
+    let isPlaying = false;
+
+    startBtn.addEventListener('click', () => {
+        welcome.classList.add('hidden');
+        audio.play().catch(err => console.log("Autoplay blocked"));
+        isPlaying = true;
+        updateSoundIcon();
+    });
+
+    soundToggle.addEventListener('click', () => {
+        if (isPlaying) {
+            audio.pause();
+        } else {
+            audio.play();
+        }
+        isPlaying = !isPlaying;
+        updateSoundIcon();
+    });
+
+    function updateSoundIcon() {
+        if (isPlaying) {
+            soundIcon.innerHTML = '<path d="M11 5L6 9H2V15H6L11 19V5Z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>';
+            soundToggle.classList.remove('muted');
+        } else {
+            soundIcon.innerHTML = '<path d="M11 5L6 9H2V15H6L11 19V5Z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+            soundToggle.classList.add('muted');
+        }
+    }
+
+    // Particles
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot-particle';
+        const size = Math.random() * 4 + 1;
+        dot.style.width = size + 'px';
+        dot.style.height = size + 'px';
+        dot.style.left = Math.random() * 100 + '%';
+        dot.style.top = Math.random() * 100 + '%';
+        dot.style.animationDelay = Math.random() * 20 + 's';
+        dot.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        particlesContainer.appendChild(dot);
+    }
+</script>
+
+</body>
+</html>
