@@ -143,6 +143,16 @@
             opacity: 0.5;
         }
 
+        .sound-status {
+            position: fixed;
+            bottom: 90px;
+            left: 30px;
+            font-size: 10px;
+            color: var(--gray);
+            opacity: 0.5;
+            z-index: 50;
+        }
+
         /* Sections Layout */
         section {
             position: relative;
@@ -294,12 +304,14 @@
 <button class="sound-btn" id="soundToggle" aria-label="تحكم بالصوت">
     <svg id="soundIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        <path d="M11 5L6 9H2V15H6L11 19V5Z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
     </svg>
 </button>
+<div id="soundStatus" class="sound-status">جاري التحميل...</div>
 
-<audio id="bgAudio" loop>
-    <source src="background_music.mp3" type="audio/mpeg">
+<audio id="bgAudio" loop preload="auto">
+    <source src="bg_music.m4a" type="audio/mp4">
+    <source src="bg_music.mp3" type="audio/mpeg">
 </audio>
 
 <div class="floating-dots" id="particles"></div>
@@ -459,55 +471,61 @@
 </section>
 
 <script>
-    // Intersection Observer for visibility
     const sections = document.querySelectorAll('section');
     const progress = document.getElementById('progress');
-    
-    const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-            if (e.isIntersecting) {
-                e.target.classList.add('visible');
-                // Update progress
-                const index = Array.from(sections).indexOf(e.target);
-                const percent = ((index + 1) / sections.length) * 100;
-                progress.style.width = percent + '%';
-            }
-        });
-    }, { threshold: 0.5 });
-
-    sections.forEach(s => io.observe(s));
-
-    // Audio & Welcome Screen
     const audio = document.getElementById('bgAudio');
     const startBtn = document.getElementById('startBtn');
     const welcome = document.getElementById('welcome-screen');
     const soundToggle = document.getElementById('soundToggle');
     const soundIcon = document.getElementById('soundIcon');
+    const soundStatus = document.getElementById('soundStatus');
 
     let isPlaying = false;
 
-    startBtn.addEventListener('click', () => {
-        welcome.classList.add('hidden');
+    // Intersection Observer
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                const index = Array.from(sections).indexOf(e.target);
+                progress.style.width = ((index + 1) / sections.length * 100) + '%';
+            }
+        });
+    }, { threshold: 0.5 });
+    sections.forEach(s => io.observe(s));
+
+    // Audio Logic
+    function playAudio() {
+        soundStatus.textContent = "جاري محاولة التشغيل...";
         audio.play().then(() => {
             isPlaying = true;
-            updateSoundIcon();
+            updateSoundUI();
+            soundStatus.textContent = "الموسيقى تعمل";
+            setTimeout(() => soundStatus.style.opacity = '0', 3000);
         }).catch(err => {
-            console.log("Autoplay blocked or file missing");
-            alert("يرجى التأكد من تشغيل الصوت يدوياً من الزر في الأسفل");
+            console.error("Audio Play Error:", err);
+            isPlaying = false;
+            updateSoundUI();
+            soundStatus.textContent = "خطأ في التشغيل - اضغط الزر يدوياً";
         });
+    }
+
+    startBtn.addEventListener('click', () => {
+        welcome.classList.add('hidden');
+        playAudio();
     });
 
     soundToggle.addEventListener('click', () => {
         if (isPlaying) {
             audio.pause();
+            isPlaying = false;
         } else {
-            audio.play();
+            audio.play().then(() => isPlaying = true).catch(() => isPlaying = false);
         }
-        isPlaying = !isPlaying;
-        updateSoundIcon();
+        updateSoundUI();
     });
 
-    function updateSoundIcon() {
+    function updateSoundUI() {
         if (isPlaying) {
             soundIcon.innerHTML = '<path d="M11 5L6 9H2V15H6L11 19V5Z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>';
             soundToggle.classList.remove('muted');
@@ -516,6 +534,15 @@
             soundToggle.classList.add('muted');
         }
     }
+
+    // Handle audio loading
+    audio.addEventListener('canplaythrough', () => {
+        soundStatus.textContent = "الموسيقى جاهزة";
+    });
+    audio.addEventListener('error', (e) => {
+        soundStatus.textContent = "خطأ في تحميل الملف";
+        console.error("Audio error", e);
+    });
 
     // Particles
     const particlesContainer = document.getElementById('particles');
