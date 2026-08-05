@@ -49,7 +49,7 @@
         #bg-texture {
             position: fixed;
             inset: 0;
-            opacity: 0.03;
+            opacity: 0.05;
             background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
             z-index: -1;
             pointer-events: none;
@@ -83,6 +83,18 @@
         #welcome-screen.hidden {
             opacity: 0;
             visibility: hidden;
+        }
+
+        .welcome-art {
+            width: 300px;
+            height: 170px;
+            background-image: url('meeting_artwork.jpg');
+            background-size: cover;
+            background-position: center;
+            border: 1px solid var(--gold-soft);
+            margin-bottom: 30px;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .enter-btn {
@@ -274,6 +286,7 @@
 <div id="bg-texture"></div>
 
 <div id="welcome-screen">
+    <div class="welcome-art"></div>
     <h1 style="opacity: 1; transform: none; margin-bottom: 40px; font-size: 32px; color: var(--ivory);">لقاء لم يكن في الحسبان</h1>
     <button class="enter-btn" id="startBtn">ابدأ التجربة</button>
 </div>
@@ -286,7 +299,7 @@
 </button>
 
 <audio id="bgAudio" loop>
-    <source src="https://www.free-stock-music.com/music/fscm-productions-flowers.mp3" type="audio/mpeg">
+    <source src="background_music.mp3" type="audio/mpeg">
 </audio>
 
 <div class="floating-dots" id="particles"></div>
@@ -475,9 +488,13 @@
 
     startBtn.addEventListener('click', () => {
         welcome.classList.add('hidden');
-        audio.play().catch(err => console.log("Autoplay blocked"));
-        isPlaying = true;
-        updateSoundIcon();
+        audio.play().then(() => {
+            isPlaying = true;
+            updateSoundIcon();
+        }).catch(err => {
+            console.log("Autoplay blocked or file missing");
+            alert("يرجى التأكد من تشغيل الصوت يدوياً من الزر في الأسفل");
+        });
     });
 
     soundToggle.addEventListener('click', () => {
