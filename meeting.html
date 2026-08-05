@@ -38,7 +38,6 @@
             display: none;
         }
 
-        /* Ambient Background */
         #bg-overlay {
             position: fixed;
             inset: 0;
@@ -55,7 +54,6 @@
             pointer-events: none;
         }
 
-        /* Progress Bar */
         #progress {
             position: fixed;
             top: 0;
@@ -67,7 +65,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Welcome Screen */
         #welcome-screen {
             position: fixed;
             inset: 0;
@@ -86,24 +83,24 @@
         }
 
         .welcome-art {
-            width: 300px;
-            height: 170px;
+            width: 320px;
+            height: 180px;
             background-image: url('meeting_artwork.jpg');
             background-size: cover;
             background-position: center;
             border: 1px solid var(--gold-soft);
             margin-bottom: 30px;
             border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
 
         .enter-btn {
-            padding: 15px 40px;
+            padding: 15px 50px;
             background: transparent;
             border: 1px solid var(--gold);
             color: var(--gold);
             font-family: 'Aref Ruqaa', serif;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             transition: all 0.4s ease;
             letter-spacing: 2px;
@@ -112,26 +109,26 @@
         .enter-btn:hover {
             background: var(--gold);
             color: var(--charcoal);
-            box-shadow: 0 0 20px var(--gold-soft);
+            box-shadow: 0 0 30px var(--gold-soft);
         }
 
-        /* Audio Controls */
         .sound-btn {
             position: fixed;
             bottom: 30px;
             left: 30px;
             z-index: 50;
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             border: 1px solid var(--gold-soft);
-            background: rgba(13, 12, 11, 0.8);
+            background: rgba(13, 12, 11, 0.85);
             color: var(--gold);
             display: flex;
             align-items: center; justify-content: center;
             cursor: pointer;
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
         .sound-btn:hover {
@@ -140,20 +137,9 @@
         }
 
         .sound-btn.muted svg {
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
-        .sound-status {
-            position: fixed;
-            bottom: 90px;
-            left: 30px;
-            font-size: 10px;
-            color: var(--gray);
-            opacity: 0.5;
-            z-index: 50;
-        }
-
-        /* Sections Layout */
         section {
             position: relative;
             height: 100vh;
@@ -164,80 +150,80 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 0 10%;
+            padding: 0 12%;
             z-index: 10;
         }
 
         .frame {
             position: absolute;
-            inset: 40px;
-            border: 1px solid rgba(212, 175, 55, 0.15);
+            inset: 45px;
+            border: 1px solid rgba(212, 175, 55, 0.12);
             pointer-events: none;
-            transition: inset 1s ease;
+            transition: inset 1.2s ease;
         }
 
         section.visible .frame {
-            inset: 30px;
+            inset: 35px;
         }
 
         .pagenum {
             position: absolute;
-            top: 50px;
+            top: 55px;
             font-family: 'Aref Ruqaa', serif;
             color: var(--gold-soft);
-            font-size: 14px;
-            letter-spacing: 4px;
+            font-size: 15px;
+            letter-spacing: 5px;
         }
 
         h1 {
             font-family: 'Amiri', serif;
             font-weight: 700;
             color: var(--gold);
-            font-size: clamp(40px, 8vw, 80px);
-            line-height: 1.3;
-            margin-bottom: 20px;
+            font-size: clamp(45px, 9vw, 85px);
+            line-height: 1.2;
+            margin-bottom: 25px;
             opacity: 0;
-            transform: translateY(30px);
-            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: translateY(40px);
+            transition: all 1.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         h2 {
             font-family: 'Amiri', serif;
             font-weight: 700;
             color: var(--gold);
-            font-size: clamp(28px, 5vw, 45px);
-            margin-bottom: 30px;
+            font-size: clamp(30px, 6vw, 50px);
+            margin-bottom: 35px;
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+            transform: translateY(30px);
+            transition: all 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
         }
 
         p {
-            font-size: clamp(18px, 2.5vw, 24px);
-            line-height: 2.2;
+            font-size: clamp(20px, 2.8vw, 26px);
+            line-height: 2.3;
             color: var(--ivory);
-            max-width: 800px;
+            max-width: 850px;
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transform: translateY(25px);
+            transition: all 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
         }
 
         .sub {
             font-family: 'Aref Ruqaa', serif;
             color: var(--gray);
-            font-size: clamp(16px, 2vw, 20px);
-            margin-top: 25px;
+            font-size: clamp(18px, 2.2vw, 22px);
+            margin-top: 30px;
             opacity: 0;
-            transition: opacity 1.5s ease 0.8s;
+            transition: opacity 1.8s ease 0.8s;
         }
 
         .divider {
             width: 0;
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
-            margin: 30px auto;
-            transition: width 1.5s ease 0.5s;
+            margin: 35px auto;
+            transition: width 1.8s ease 0.6s;
         }
 
         section.visible h1, section.visible h2, section.visible p, section.visible .sub {
@@ -246,17 +232,17 @@
         }
 
         section.visible .divider {
-            width: 200px;
+            width: 250px;
         }
 
         .cover .sub2 {
             font-family: 'Amiri', serif;
             font-style: italic;
             color: var(--gray);
-            font-size: 18px;
-            margin-top: 50px;
+            font-size: 20px;
+            margin-top: 60px;
             opacity: 0;
-            transition: opacity 2s ease 1s;
+            transition: opacity 2.2s ease 1.2s;
         }
 
         section.visible .sub2 {
@@ -278,14 +264,14 @@
             position: absolute;
             background: var(--gold);
             border-radius: 50%;
-            opacity: 0.2;
+            opacity: 0.25;
             filter: blur(1px);
-            animation: float 20s infinite linear;
+            animation: float 25s infinite linear;
         }
 
         @keyframes float {
-            0% { transform: translateY(100vh) translateX(0); }
-            100% { transform: translateY(-100px) translateX(50px); }
+            0% { transform: translateY(105vh) translateX(0); }
+            100% { transform: translateY(-110px) translateX(60px); }
         }
     </style>
 </head>
@@ -297,20 +283,18 @@
 
 <div id="welcome-screen">
     <div class="welcome-art"></div>
-    <h1 style="opacity: 1; transform: none; margin-bottom: 40px; font-size: 32px; color: var(--ivory);">لقاء لم يكن في الحسبان</h1>
+    <h1 style="opacity: 1; transform: none; margin-bottom: 45px; font-size: 34px; color: var(--ivory);">لقاء لم يكن في الحسبان</h1>
     <button class="enter-btn" id="startBtn">ابدأ التجربة</button>
 </div>
 
 <button class="sound-btn" id="soundToggle" aria-label="تحكم بالصوت">
-    <svg id="soundIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg id="soundIcon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
         <path d="M11 5L6 9H2V15H6L11 19V5Z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
     </svg>
 </button>
-<div id="soundStatus" class="sound-status">جاري التحميل...</div>
 
 <audio id="bgAudio" loop preload="auto">
-    <source src="bg_music.m4a" type="audio/mp4">
     <source src="bg_music.mp3" type="audio/mpeg">
 </audio>
 
@@ -455,7 +439,7 @@
     <h2>القبول بما كان</h2>
     <div class="divider"></div>
     <p>
-        أختار أن أترك اللحظة كما جاءت، جميلة وخفيفة، بلا انتظار يُثقلها، ولا توقّعات تُفسدها،
+        أختار أن أترك اللحظة كما جاءت، جميلة وخفيفة، بلا انتظار يُثقلها، ولا توقّعات تُفسدها,
         فبعض المشاعر تكتمل حين تُترك كما هي، إعجابًا صادقًا لا يبحث عن اسم أكبر منه.
     </p>
 </section>
@@ -478,7 +462,6 @@
     const welcome = document.getElementById('welcome-screen');
     const soundToggle = document.getElementById('soundToggle');
     const soundIcon = document.getElementById('soundIcon');
-    const soundStatus = document.getElementById('soundStatus');
 
     let isPlaying = false;
 
@@ -494,25 +477,13 @@
     }, { threshold: 0.5 });
     sections.forEach(s => io.observe(s));
 
-    // Audio Logic
-    function playAudio() {
-        soundStatus.textContent = "جاري محاولة التشغيل...";
+    // Audio Control
+    startBtn.addEventListener('click', () => {
+        welcome.classList.add('hidden');
         audio.play().then(() => {
             isPlaying = true;
             updateSoundUI();
-            soundStatus.textContent = "الموسيقى تعمل";
-            setTimeout(() => soundStatus.style.opacity = '0', 3000);
-        }).catch(err => {
-            console.error("Audio Play Error:", err);
-            isPlaying = false;
-            updateSoundUI();
-            soundStatus.textContent = "خطأ في التشغيل - اضغط الزر يدوياً";
-        });
-    }
-
-    startBtn.addEventListener('click', () => {
-        welcome.classList.add('hidden');
-        playAudio();
+        }).catch(err => console.log("Audio play error"));
     });
 
     soundToggle.addEventListener('click', () => {
@@ -535,18 +506,9 @@
         }
     }
 
-    // Handle audio loading
-    audio.addEventListener('canplaythrough', () => {
-        soundStatus.textContent = "الموسيقى جاهزة";
-    });
-    audio.addEventListener('error', (e) => {
-        soundStatus.textContent = "خطأ في تحميل الملف";
-        console.error("Audio error", e);
-    });
-
     // Particles
     const particlesContainer = document.getElementById('particles');
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 40; i++) {
         const dot = document.createElement('div');
         dot.className = 'dot-particle';
         const size = Math.random() * 4 + 1;
@@ -554,8 +516,8 @@
         dot.style.height = size + 'px';
         dot.style.left = Math.random() * 100 + '%';
         dot.style.top = Math.random() * 100 + '%';
-        dot.style.animationDelay = Math.random() * 20 + 's';
-        dot.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        dot.style.animationDelay = Math.random() * 25 + 's';
+        dot.style.animationDuration = (Math.random() * 10 + 15) + 's';
         particlesContainer.appendChild(dot);
     }
 </script>
